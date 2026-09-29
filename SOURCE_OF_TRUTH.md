@@ -872,6 +872,7 @@ Task status vocabulary:
 - **OPS-002 — Database schema and migrations** — **IN_PROGRESS**
   - Started 2026-09-29: added bounded master-data foundation migration at `supabase/migrations/20260929050100_ops_002_master_data_foundation.sql` covering customers, suppliers, product categories, products/SKUs, packaging conversion, and supplier-product mapping.
   - Continued 2026-09-29: added bounded cost/pricing foundation migration at `supabase/migrations/20260929050500_ops_002_cost_pricing_foundation.sql` covering purchase-cost history, landed/base-unit cost traceability, data-driven pricing rules, quantity tiers, print-cost inputs, and fixed/markup/margin pricing bases.
+  - Continued 2026-09-29: added bounded purchasing/goods-receipt foundation migration at `supabase/migrations/20260929051000_ops_002_purchasing_receipt_foundation.sql` covering purchase orders/items, immediate supplier payments, goods receipts/items, packaging-to-base-unit receipt conversion, and derived purchase-order totals.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
