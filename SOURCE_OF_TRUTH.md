@@ -869,7 +869,7 @@ Task status vocabulary:
 - **OPS-000 — SOT / architecture lock** — **DONE**
 - **OPS-001 — Repository/app scaffold** — **DONE**
   - Completed 2026-09-29: scaffold validation CI at `.github/workflows/scaffold-ci.yml` passed dependency install, lint, and build in workflow run `36522422820`.
-- **OPS-002 — Database schema and migrations** — **BLOCKED**
+- **OPS-002 — Database schema and migrations** — **DONE**
   - Started 2026-09-29: added bounded master-data foundation migration at `supabase/migrations/20260929050100_ops_002_master_data_foundation.sql` covering customers, suppliers, product categories, products/SKUs, packaging conversion, and supplier-product mapping.
   - Continued 2026-09-29: added bounded cost/pricing foundation migration at `supabase/migrations/20260929050500_ops_002_cost_pricing_foundation.sql` covering purchase-cost history, landed/base-unit cost traceability, data-driven pricing rules, quantity tiers, print-cost inputs, and fixed/markup/margin pricing bases.
   - Continued 2026-09-29: added bounded purchasing/goods-receipt foundation migration at `supabase/migrations/20260929051000_ops_002_purchasing_receipt_foundation.sql` covering purchase orders/items, immediate supplier payments, goods receipts/items, packaging-to-base-unit receipt conversion, and derived purchase-order totals.
@@ -883,6 +883,8 @@ Task status vocabulary:
   - Continued 2026-09-29: added bounded migration-validation CI at `.github/workflows/database-migrations-ci.yml` using the official Supabase CLI to initialize an ephemeral local configuration and apply all version-controlled migrations to a fresh local database for migration-affecting pushes and pull requests.
   - Continued 2026-09-29: added `supabase/migrations/20260929063000_ops_002_security_hardening.sql` to explicitly enable RLS on all 30 OPS public tables and set all 10 public derived views to `security_invoker=true`, keeping local/CI security behavior consistent with hosted Supabase.
   - Verified 2026-09-29: added pgTAP smoke coverage at `supabase/tests/database/ops_002_schema_smoke.test.sql`; GitHub Actions run `36532007015` passed the complete fresh migration chain and verified 30 authoritative tables, 10 authoritative views, RLS on all 30 tables, and security-invoker mode on all 10 views.
+  - Continued 2026-09-29: added `supabase/migrations/20260929074000_ops_002_production_hardening.sql` to pin helper-function search paths, revoke public/Data API execution of the internal RLS helper, and add remaining foreign-key indexes identified by hosted Supabase advisors.
+  - Verified 2026-09-29 against the standalone Supabase project `OPS-WebApp` (`foclxkjnypjolcwqekku`): hosted migration history contains all 12 repository migrations through `20260929074000`; direct database verification confirmed 30 authoritative tables, 10 authoritative views, RLS enabled on all 30 tables, and `security_invoker=true` on all 10 views. Remaining security-advisor findings are INFO-only `RLS Enabled No Policy` findings intentionally deferred to OPS-003; performance-advisor findings are INFO-only unused-index notices on the newly initialized database.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
@@ -937,12 +939,12 @@ Task status vocabulary:
 ### Current task summary
 
 - Total authoritative tasks: **30**
-- Done: **2**
+- Done: **3**
 - In progress: **0**
-- Blocked: **1**
+- Blocked: **0**
 - Todo: **27**
 
-The current authoritative task remains **OPS-002 — Database schema and migrations**, but it is **BLOCKED** until an OPS-specific Supabase project is accessible for migration application and verification. Do not use `MAGASIN-NOIBO` for this purpose.
+**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. The next authoritative task is **OPS-003 — Authentication and RBAC** — **TODO**.
 
 ---
 
@@ -1032,10 +1034,10 @@ As of **2026-09-29**:
 - Repository: **created**
 - Source of Truth: **established**
 - Application scaffold: **completed**
-- Database schema: **blocked pending standalone OPS Supabase migration verification**
+- Database schema: **completed and verified on standalone OPS Supabase**
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
-- Next authoritative task: **OPS-002 — Database schema and migrations (BLOCKED pending standalone OPS Supabase project access)**
+- Next authoritative task: **OPS-003 — Authentication and RBAC**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
