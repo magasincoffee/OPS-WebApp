@@ -885,7 +885,8 @@ Task status vocabulary:
   - Verified 2026-09-29: added pgTAP smoke coverage at `supabase/tests/database/ops_002_schema_smoke.test.sql`; GitHub Actions run `36532007015` passed the complete fresh migration chain and verified 30 authoritative tables, 10 authoritative views, RLS on all 30 tables, and security-invoker mode on all 10 views.
   - Continued 2026-09-29: added `supabase/migrations/20260929074000_ops_002_production_hardening.sql` to pin helper-function search paths, revoke public/Data API execution of the internal RLS helper, and add remaining foreign-key indexes identified by hosted Supabase advisors.
   - Verified 2026-09-29 against the standalone Supabase project `OPS-WebApp` (`foclxkjnypjolcwqekku`): hosted migration history contains all 12 repository migrations through `20260929074000`; direct database verification confirmed 30 authoritative tables, 10 authoritative views, RLS enabled on all 30 tables, and `security_invoker=true` on all 10 views. Remaining security-advisor findings are INFO-only `RLS Enabled No Policy` findings intentionally deferred to OPS-003; performance-advisor findings are INFO-only unused-index notices on the newly initialized database.
-- **OPS-003 — Authentication and RBAC** — **IN_PROGRESS**
+  - Reconciled 2026-09-29: made `20260929074000_ops_002_production_hardening.sql` replayable on a fresh/local database when the hosted-only `public.rls_auto_enable()` helper is absent. GitHub Actions run `36542929152` subsequently passed the complete fresh migration chain.
+- **OPS-003 — Authentication and RBAC** — **DONE**
   - Started 2026-09-29: added bounded identity/RBAC foundation migration at `supabase/migrations/20260929080000_ops_003_identity_rbac_foundation.sql` covering the `users`, `roles`, and `user_roles` identity model; Supabase Auth user synchronization; the five locked V1 roles; role-membership helpers; and RLS/grants for the RBAC tables themselves. Business-table authorization policies and representative permission verification remain within OPS-003.
   - Continued 2026-09-29: added bounded master-data/cost-pricing authorization migration at `supabase/migrations/20260929090000_ops_003_master_cost_rbac.sql`. It grants SALES customer-management plus product/pricing reads, ACCOUNTING financial/master reads, WAREHOUSE procurement/product reference reads, PRINTER_PRODUCTION product reference reads, restricts purchase-cost history to OWNER_ADMIN/ACCOUNTING, and keeps master/cost/pricing configuration mutations OWNER_ADMIN-only. Authorization for purchase/order/inventory/production/finance/delivery/task tables and representative permission verification remain within OPS-003.
   - Continued 2026-09-29: added bounded purchasing/warehouse authorization migration at `supabase/migrations/20260929093000_ops_003_purchasing_warehouse_rbac.sql`. It keeps direct purchase-order/item/payment cost-bearing records restricted to OWNER_ADMIN/ACCOUNTING reads with OWNER_ADMIN mutations; grants OWNER_ADMIN/WAREHOUSE operational access to goods receipts, inventory reservations/movements, and stocktakes; preserves the append-only inventory ledger by granting only SELECT/INSERT on `inventory_movements`; and intentionally does not expose purchase-item unit costs to WAREHOUSE. Sales, production, customer-finance, delivery, operational-task authorization and representative permission verification remain within OPS-003.
@@ -893,7 +894,8 @@ Task status vocabulary:
   - Continued 2026-09-29: added bounded print-production authorization migration at `supabase/migrations/20260929103000_ops_003_production_rbac.sql`. It limits PRINTER_PRODUCTION to assigned print jobs/events, prevents production users from rewriting source order/customer/product/specification/assignment fields, provides a sanitized non-financial production queue with order/customer/product identity, and keeps SALES/ACCOUNTING/WAREHOUSE out of direct production-table access. Customer-finance, delivery, operational-task authorization and representative permission verification remain within OPS-003.
   - Continued 2026-09-29: added bounded customer-finance authorization migration at `supabase/migrations/20260929110000_ops_003_customer_finance_rbac.sql`. It grants OWNER_ADMIN/ACCOUNTING direct customer-payment and immutable ledger access, withholds payment/ledger records from WAREHOUSE/PRINTER_PRODUCTION, and provides SALES a sanitized receivable follow-up projection without direct access to payment or ledger tables. Delivery, operational-task authorization and representative permission verification remain within OPS-003.
   - Continued 2026-09-29: added bounded delivery authorization migration at `supabase/migrations/20260929111500_ops_003_delivery_rbac.sql`. It grants OWNER_ADMIN/WAREHOUSE operational read/create/update access to deliveries and delivery items, gives SALES read-only delivery visibility for order follow-up, withholds direct delivery-table access from ACCOUNTING/PRINTER_PRODUCTION, and preserves traceability by providing no authenticated DELETE grant. Operational-task authorization and representative permission verification remain within OPS-003.
-  - Continued 2026-09-29: added bounded operational-task authorization migration at `supabase/migrations/20260929113000_ops_003_operational_tasks_rbac.sql`. It gives OWNER_ADMIN full task administration, limits SALES/ACCOUNTING/WAREHOUSE/PRINTER_PRODUCTION to reading their own assigned tasks and updating execution-only fields, prevents assignees from changing task identity/linkage/assignment/due date/priority/creator metadata, and exposes the operational task queue through invoker-security RLS. Representative permission verification remains within OPS-003.
+  - Continued 2026-09-29: added bounded operational-task authorization migration at `supabase/migrations/20260929113000_ops_003_operational_tasks_rbac.sql`. It gives OWNER_ADMIN full task administration, limits SALES/ACCOUNTING/WAREHOUSE/PRINTER_PRODUCTION to reading their own assigned tasks and updating execution-only fields, prevents assignees from changing task identity/linkage/assignment/due date/priority/creator metadata, and exposes the operational task queue through invoker-security RLS.
+  - Verified 2026-09-29: added `supabase/tests/database/ops_003_representative_permissions.test.sql` with representative OWNER_ADMIN, SALES, ACCOUNTING, WAREHOUSE, and PRINTER_PRODUCTION identities. GitHub Actions run `36542929152` passed all database tests, including 23 representative RBAC assertions confirming permitted operational visibility and denial of restricted purchase-cost/customer data where required.
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
 ## Master Data
@@ -947,12 +949,12 @@ Task status vocabulary:
 ### Current task summary
 
 - Total authoritative tasks: **30**
-- Done: **3**
-- In progress: **1**
+- Done: **4**
+- In progress: **0**
 - Blocked: **0**
 - Todo: **26**
 
-**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is now **IN_PROGRESS**. The identity/RBAC foundation migration exists; the next bounded work remains inside OPS-003.
+**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is **DONE** after representative permission verification passed in GitHub Actions run `36542929152`. The next authoritative task is **OPS-004 — Audit/activity/attachment foundation — TODO**.
 
 ---
 
@@ -1046,6 +1048,7 @@ As of **2026-09-29**:
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
-- Current authoritative task: **OPS-003 — Authentication and RBAC — IN_PROGRESS**
+- Authentication/RBAC: **completed; representative permissions verified**
+- Current authoritative task: **OPS-004 — Audit/activity/attachment foundation — TODO**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
