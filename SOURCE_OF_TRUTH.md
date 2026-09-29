@@ -868,6 +868,7 @@ Task status vocabulary:
 
 - **OPS-000 — SOT / architecture lock** — **DONE**
 - **OPS-001 — Repository/app scaffold** — **IN_PROGRESS**
+  - Progress 2026-09-29: scaffold validation CI added at `.github/workflows/scaffold-ci.yml`; lint/build result pending.
 - **OPS-002 — Database schema and migrations** — TODO
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
