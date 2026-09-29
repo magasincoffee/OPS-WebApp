@@ -875,6 +875,7 @@ Task status vocabulary:
   - Continued 2026-09-29: added bounded purchasing/goods-receipt foundation migration at `supabase/migrations/20260929051000_ops_002_purchasing_receipt_foundation.sql` covering purchase orders/items, immediate supplier payments, goods receipts/items, packaging-to-base-unit receipt conversion, and derived purchase-order totals.
   - Continued 2026-09-29: added bounded quotation/sales-order foundation migration at `supabase/migrations/20260929051500_ops_002_sales_order_foundation.sql` covering quotations/items, sales orders/items, packaging conversion snapshots, printed-vs-plain line specifications, derived totals, and separate order/print/warehouse/payment status dimensions.
   - Continued 2026-09-29: added bounded inventory-ledger/reservation foundation migration at `supabase/migrations/20260929052000_ops_002_inventory_foundation.sql` covering immutable inventory movements, reservation linkage, ledger-derived on-hand/reserved/available stock snapshots, single-post goods-receipt protection, and prevention of negative available stock.
+  - Continued 2026-09-29: added bounded stocktake/adjustment foundation migration at `supabase/migrations/20260929052500_ops_002_stocktake_foundation.sql` covering stocktake headers/items, system-vs-counted variance, authoritative linkage of stocktake adjustments into the immutable inventory ledger, one-post-per-stocktake-line protection, and required reasons for adjustment movements.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
