@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "supabase/migrations/**"
+      - "supabase/tests/**"
       - ".github/workflows/database-migrations-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "supabase/migrations/**"
+      - "supabase/tests/**"
       - ".github/workflows/database-migrations-ci.yml"
 
 permissions:
@@ -32,3 +34,6 @@ jobs:
 
       - name: Apply all migrations to a fresh local database
         run: supabase db start
+
+      - name: Run OPS database smoke tests
+        run: supabase test db
