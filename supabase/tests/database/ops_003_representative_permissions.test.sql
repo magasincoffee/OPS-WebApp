@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(23);
 
 -- Representative V1 users. Inserting into auth.users exercises the OPS auth-user
 -- synchronization trigger and produces matching public.users rows.
