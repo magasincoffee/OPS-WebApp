@@ -871,6 +871,7 @@ Task status vocabulary:
   - Completed 2026-09-29: scaffold validation CI at `.github/workflows/scaffold-ci.yml` passed dependency install, lint, and build in workflow run `36522422820`.
 - **OPS-002 — Database schema and migrations** — **IN_PROGRESS**
   - Started 2026-09-29: added bounded master-data foundation migration at `supabase/migrations/20260929050100_ops_002_master_data_foundation.sql` covering customers, suppliers, product categories, products/SKUs, packaging conversion, and supplier-product mapping.
+  - Continued 2026-09-29: added bounded cost/pricing foundation migration at `supabase/migrations/20260929050500_ops_002_cost_pricing_foundation.sql` covering purchase-cost history, landed/base-unit cost traceability, data-driven pricing rules, quantity tiers, print-cost inputs, and fixed/markup/margin pricing bases.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
