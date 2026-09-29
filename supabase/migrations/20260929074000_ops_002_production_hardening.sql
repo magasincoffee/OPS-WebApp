@@ -11,9 +11,16 @@ alter function public.validate_customer_ledger_source() set search_path = public
 alter function public.prevent_customer_ledger_entry_mutation() set search_path = public, pg_temp;
 alter function public.validate_delivery_item_source() set search_path = public, pg_temp;
 
--- The automatic-RLS helper is an internal SECURITY DEFINER function.
--- It must not be callable through the Data API by public application roles.
-revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
+-- The automatic-RLS helper may exist on hosted Supabase projects but is not
+-- created by the version-controlled OPS migration chain. Harden it when present
+-- without making fresh/local database initialization depend on hosted-only state.
+do $$
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    execute 'revoke execute on function public.rls_auto_enable() from public, anon, authenticated';
+  end if;
+end
+$$;
 
 -- Cover remaining foreign keys flagged by the performance advisor.
 create index if not exists purchase_cost_history_packaging_id_idx
