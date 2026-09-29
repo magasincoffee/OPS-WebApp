@@ -867,8 +867,8 @@ Task status vocabulary:
 ## Foundation
 
 - **OPS-000 — SOT / architecture lock** — **DONE**
-- **OPS-001 — Repository/app scaffold** — **IN_PROGRESS**
-  - Progress 2026-09-29: scaffold validation CI added at `.github/workflows/scaffold-ci.yml`; lint/build result pending.
+- **OPS-001 — Repository/app scaffold** — **DONE**
+  - Completed 2026-09-29: scaffold validation CI at `.github/workflows/scaffold-ci.yml` passed dependency install, lint, and build in workflow run `36522422820`.
 - **OPS-002 — Database schema and migrations** — TODO
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
@@ -924,12 +924,12 @@ Task status vocabulary:
 ### Current task summary
 
 - Total authoritative tasks: **30**
-- Done: **1**
-- In progress: **1**
+- Done: **2**
+- In progress: **0**
 - Blocked: **0**
 - Todo: **28**
 
-The next task is **OPS-001 — Repository/app scaffold**, unless the SOT is updated with a different priority.
+The next task is **OPS-002 — Database schema and migrations**, unless the SOT is updated with a different priority.
 
 ---
 
@@ -1018,11 +1018,11 @@ As of **2026-09-29**:
 - Business architecture: **LOCKED**
 - Repository: **created**
 - Source of Truth: **established**
-- Application scaffold: **in progress**
+- Application scaffold: **completed**
 - Database schema: **not started**
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
-- Next authoritative task: **OPS-001 — Repository/app scaffold**
+- Next authoritative task: **OPS-002 — Database schema and migrations**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
