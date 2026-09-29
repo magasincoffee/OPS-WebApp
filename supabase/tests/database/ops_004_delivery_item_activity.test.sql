@@ -293,7 +293,7 @@ select results_eq(
     where linked_entity_id = 'a0900000-0000-0000-0000-000000000001'
       and metadata ->> 'delivery_id' = 'a0800000-0000-0000-0000-000000000001'
       and metadata ->> 'sales_order_item_id' = 'a0700000-0000-0000-0000-000000000001'
-      and metadata ->> 'product_variant_id' = 'a0500000-0000-0000-000000000001'
+      and metadata ->> 'product_variant_id' = 'a0500000-0000-0000-0000-000000000001'
   $$,
   array[3::bigint],
   'delivery-item activity metadata preserves delivery, sales-order-item, and product linkage'
