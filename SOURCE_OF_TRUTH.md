@@ -896,7 +896,7 @@ Task status vocabulary:
   - Continued 2026-09-29: added bounded delivery authorization migration at `supabase/migrations/20260929111500_ops_003_delivery_rbac.sql`. It grants OWNER_ADMIN/WAREHOUSE operational read/create/update access to deliveries and delivery items, gives SALES read-only delivery visibility for order follow-up, withholds direct delivery-table access from ACCOUNTING/PRINTER_PRODUCTION, and preserves traceability by providing no authenticated DELETE grant. Operational-task authorization and representative permission verification remain within OPS-003.
   - Continued 2026-09-29: added bounded operational-task authorization migration at `supabase/migrations/20260929113000_ops_003_operational_tasks_rbac.sql`. It gives OWNER_ADMIN full task administration, limits SALES/ACCOUNTING/WAREHOUSE/PRINTER_PRODUCTION to reading their own assigned tasks and updating execution-only fields, prevents assignees from changing task identity/linkage/assignment/due date/priority/creator metadata, and exposes the operational task queue through invoker-security RLS.
   - Verified 2026-09-29: added `supabase/tests/database/ops_003_representative_permissions.test.sql` with representative OWNER_ADMIN, SALES, ACCOUNTING, WAREHOUSE, and PRINTER_PRODUCTION identities. GitHub Actions run `36542929152` passed all database tests, including 23 representative RBAC assertions confirming permitted operational visibility and denial of restricted purchase-cost/customer data where required.
-- **OPS-004 — Audit/activity/attachment foundation** — TODO
+- **OPS-004 — Audit/activity/attachment foundation** — **IN_PROGRESS**\n  - Started 2026-09-29: added bounded attachment-metadata foundation migration at `supabase/migrations/20260929120000_ops_004_attachment_metadata_foundation.sql` covering polymorphic business-entity linkage, Supabase Storage object references, evidence/artwork/document attachment kinds, uploader traceability, indexes, immediate RLS, restrictive OWNER_ADMIN metadata policies, and no direct authenticated update/delete grant. Added pgTAP smoke coverage at `supabase/tests/database/ops_004_attachment_metadata.test.sql`. Activity-log foundation and module-specific attachment/storage access remain within OPS-004.
 
 ## Master Data
 
@@ -954,7 +954,7 @@ Task status vocabulary:
 - Blocked: **0**
 - Todo: **26**
 
-**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is **DONE** after representative permission verification passed in GitHub Actions run `36542929152`. The next authoritative task is **OPS-004 — Audit/activity/attachment foundation — TODO**.
+**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is **DONE** after representative permission verification passed in GitHub Actions run `36542929152`. The current authoritative task is **OPS-004 — Audit/activity/attachment foundation — IN_PROGRESS**. The attachment-metadata bounded unit is implemented; activity-log foundation and module-specific attachment/storage access remain.
 
 ---
 
@@ -1049,6 +1049,6 @@ As of **2026-09-29**:
 - Migration implementation: **not started**
 - Production deployment: **not started**
 - Authentication/RBAC: **completed; representative permissions verified**
-- Current authoritative task: **OPS-004 — Audit/activity/attachment foundation — TODO**
+- Current authoritative task: **OPS-004 — Audit/activity/attachment foundation — IN_PROGRESS**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
