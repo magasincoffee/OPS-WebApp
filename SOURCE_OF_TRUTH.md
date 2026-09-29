@@ -869,7 +869,7 @@ Task status vocabulary:
 - **OPS-000 — SOT / architecture lock** — **DONE**
 - **OPS-001 — Repository/app scaffold** — **DONE**
   - Completed 2026-09-29: scaffold validation CI at `.github/workflows/scaffold-ci.yml` passed dependency install, lint, and build in workflow run `36522422820`.
-- **OPS-002 — Database schema and migrations** — **IN_PROGRESS**
+- **OPS-002 — Database schema and migrations** — **BLOCKED**
   - Started 2026-09-29: added bounded master-data foundation migration at `supabase/migrations/20260929050100_ops_002_master_data_foundation.sql` covering customers, suppliers, product categories, products/SKUs, packaging conversion, and supplier-product mapping.
   - Continued 2026-09-29: added bounded cost/pricing foundation migration at `supabase/migrations/20260929050500_ops_002_cost_pricing_foundation.sql` covering purchase-cost history, landed/base-unit cost traceability, data-driven pricing rules, quantity tiers, print-cost inputs, and fixed/markup/margin pricing bases.
   - Continued 2026-09-29: added bounded purchasing/goods-receipt foundation migration at `supabase/migrations/20260929051000_ops_002_purchasing_receipt_foundation.sql` covering purchase orders/items, immediate supplier payments, goods receipts/items, packaging-to-base-unit receipt conversion, and derived purchase-order totals.
@@ -879,6 +879,7 @@ Task status vocabulary:
   - Continued 2026-09-29: added bounded print-production foundation migration at `supabase/migrations/20260929053000_ops_002_print_production_foundation.sql` covering print jobs/events, printed-order source validation, production/QC status dimensions, immutable production-spec snapshots, and a production queue view.\n  - Continued 2026-09-29: added bounded customer-finance foundation migration at `supabase/migrations/20260929053500_ops_002_customer_finance_foundation.sql` covering customer payments, source integrity, immutable customer-ledger entries, order-level receivable derivation from valid payments, and customer ledger balance views.
   - Continued 2026-09-29: added bounded delivery foundation migration at `supabase/migrations/20260929054000_ops_002_delivery_foundation.sql` covering delivery headers/items, operational delivery states, parcel/carrier/consignee details, sales-order source integrity, and a derived delivery-status view.
   - Continued 2026-09-29: added bounded operational-task foundation migration at `supabase/migrations/20260929054500_ops_002_operational_tasks_foundation.sql` covering shared task records, linked-entity references, assignment/due/status/priority state, completion consistency, and an overdue-aware operational queue view.
+  - Blocked 2026-09-29: the current execution environment has no accessible standalone OPS Supabase project for applying and verifying the migration chain. The only accessible Supabase project is `MAGASIN-NOIBO`, which must not be used because Section 2.6 requires a separate OPS database/auth/deployment. Do not mark OPS-002 DONE until the migrations are applied and verified against an OPS-specific Supabase project.
   - Continued 2026-09-29: added bounded migration-validation CI at `.github/workflows/database-migrations-ci.yml` using the official Supabase CLI to initialize an ephemeral local configuration and apply all version-controlled migrations to a fresh local database for migration-affecting pushes and pull requests.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
@@ -935,11 +936,11 @@ Task status vocabulary:
 
 - Total authoritative tasks: **30**
 - Done: **2**
-- In progress: **1**
-- Blocked: **0**
+- In progress: **0**
+- Blocked: **1**
 - Todo: **27**
 
-The next task is **OPS-002 — Database schema and migrations**, unless the SOT is updated with a different priority.
+The current authoritative task remains **OPS-002 — Database schema and migrations**, but it is **BLOCKED** until an OPS-specific Supabase project is accessible for migration application and verification. Do not use `MAGASIN-NOIBO` for this purpose.
 
 ---
 
@@ -1029,10 +1030,10 @@ As of **2026-09-29**:
 - Repository: **created**
 - Source of Truth: **established**
 - Application scaffold: **completed**
-- Database schema: **in progress**
+- Database schema: **blocked pending standalone OPS Supabase migration verification**
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
-- Next authoritative task: **OPS-002 — Database schema and migrations**
+- Next authoritative task: **OPS-002 — Database schema and migrations (BLOCKED pending standalone OPS Supabase project access)**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
