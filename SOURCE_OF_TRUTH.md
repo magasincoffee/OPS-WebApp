@@ -661,6 +661,8 @@ The implementation should center on the following logical entities. Exact SQL sc
 - `roles`
 - `user_roles`
 
+  - Continued 2026-09-29: added bounded purchase-order automatic activity capture migration at `supabase/migrations/20260929155000_ops_004_purchase_order_activity_capture.sql` covering CREATE/UPDATE/DELETE audit events, `auth.uid()` actor attribution, SECURITY DEFINER-controlled audit insertion, before/after row snapshots, and source metadata. Added pgTAP coverage at `supabase/tests/database/ops_004_purchase_order_activity.test.sql`. Verification is pending Database Migrations CI; automatic activity capture for other material modules and attachment/storage access remain within OPS-004.
+
 ## Master Data
 
 - `customers`
