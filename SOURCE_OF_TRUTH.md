@@ -899,6 +899,7 @@ Task status vocabulary:
 - **OPS-004 — Audit/activity/attachment foundation** — **IN_PROGRESS**
   - Started 2026-09-29: added bounded attachment-metadata foundation migration at `supabase/migrations/20260929120000_ops_004_attachment_metadata_foundation.sql` covering polymorphic business-entity linkage, Supabase Storage object references, evidence/artwork/document attachment kinds, uploader traceability, indexes, immediate RLS, restrictive OWNER_ADMIN metadata policies, and no direct authenticated update/delete grant. Added pgTAP smoke coverage at `supabase/tests/database/ops_004_attachment_metadata.test.sql`. Module-specific attachment/storage access remains within OPS-004.
   - Continued 2026-09-29: added bounded shared activity-log foundation migration at `supabase/migrations/20260929121500_ops_004_activity_log_foundation.sql` covering polymorphic entity linkage, action/actor/timestamp capture, structured before/after metadata, append-only update/delete guards, OWNER_ADMIN audit visibility, and prevention of direct authenticated audit-log writes. Added pgTAP smoke coverage at `supabase/tests/database/ops_004_activity_log.test.sql`. Module-specific automatic activity capture and attachment/storage access remain within OPS-004.
+  - Continued 2026-09-29: added bounded sales-order automatic activity capture migration at `supabase/migrations/20260929123000_ops_004_sales_order_activity_capture.sql` covering CREATE/UPDATE/DELETE audit events, `auth.uid()` actor attribution, SECURITY DEFINER-controlled audit insertion, before/after row snapshots, and source metadata. Added pgTAP coverage at `supabase/tests/database/ops_004_sales_order_activity.test.sql`; Database Migrations CI run `36543934113` passed the fresh migration chain and sales-order activity assertions. Automatic activity capture for other material modules and attachment/storage access remain within OPS-004.
 
 ## Master Data
 
@@ -956,7 +957,7 @@ Task status vocabulary:
 - Blocked: **0**
 - Todo: **25**
 
-**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is **DONE** after representative permission verification passed in GitHub Actions run `36542929152`. The current authoritative task is **OPS-004 — Audit/activity/attachment foundation — IN_PROGRESS**. The attachment-metadata and shared activity-log foundation bounded units are implemented; module-specific automatic activity capture and attachment/storage access remain.
+**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is **DONE** after representative permission verification passed in GitHub Actions run `36542929152`. The current authoritative task is **OPS-004 — Audit/activity/attachment foundation — IN_PROGRESS**. The attachment-metadata and shared activity-log foundation bounded units are implemented; sales-order automatic activity capture is implemented and verified; automatic activity capture for other material modules and attachment/storage access remain.
 
 ---
 
