@@ -4,7 +4,7 @@
 > **Repository:** `magasincoffee/OPS-WebApp`  
 > **Architecture Generation:** 1  
 > **SOT Version:** 1.0  
-> **Status:** ARCHITECTURE_LOCKED / IMPLEMENTATION_PENDING  
+> **Status:** ARCHITECTURE_LOCKED / IMPLEMENTATION_IN_PROGRESS  
 > **Last authoritative update:** 2026-09-29  
 > **Default branch:** `main`
 
@@ -869,7 +869,8 @@ Task status vocabulary:
 - **OPS-000 — SOT / architecture lock** — **DONE**
 - **OPS-001 — Repository/app scaffold** — **DONE**
   - Completed 2026-09-29: scaffold validation CI at `.github/workflows/scaffold-ci.yml` passed dependency install, lint, and build in workflow run `36522422820`.
-- **OPS-002 — Database schema and migrations** — TODO
+- **OPS-002 — Database schema and migrations** — **IN_PROGRESS**
+  - Started 2026-09-29: added bounded master-data foundation migration at `supabase/migrations/20260929050100_ops_002_master_data_foundation.sql` covering customers, suppliers, product categories, products/SKUs, packaging conversion, and supplier-product mapping.
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
@@ -925,9 +926,9 @@ Task status vocabulary:
 
 - Total authoritative tasks: **30**
 - Done: **2**
-- In progress: **0**
+- In progress: **1**
 - Blocked: **0**
-- Todo: **28**
+- Todo: **27**
 
 The next task is **OPS-002 — Database schema and migrations**, unless the SOT is updated with a different priority.
 
@@ -1019,7 +1020,7 @@ As of **2026-09-29**:
 - Repository: **created**
 - Source of Truth: **established**
 - Application scaffold: **completed**
-- Database schema: **not started**
+- Database schema: **in progress**
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
