@@ -867,7 +867,7 @@ Task status vocabulary:
 ## Foundation
 
 - **OPS-000 — SOT / architecture lock** — **DONE**
-- **OPS-001 — Repository/app scaffold** — TODO
+- **OPS-001 — Repository/app scaffold** — **IN_PROGRESS**
 - **OPS-002 — Database schema and migrations** — TODO
 - **OPS-003 — Authentication and RBAC** — TODO
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
@@ -924,9 +924,9 @@ Task status vocabulary:
 
 - Total authoritative tasks: **30**
 - Done: **1**
-- In progress: **0**
+- In progress: **1**
 - Blocked: **0**
-- Todo: **29**
+- Todo: **28**
 
 The next task is **OPS-001 — Repository/app scaffold**, unless the SOT is updated with a different priority.
 
@@ -1017,7 +1017,7 @@ As of **2026-09-29**:
 - Business architecture: **LOCKED**
 - Repository: **created**
 - Source of Truth: **established**
-- Application scaffold: **not started**
+- Application scaffold: **in progress**
 - Database schema: **not started**
 - UI implementation: **not started**
 - Migration implementation: **not started**
