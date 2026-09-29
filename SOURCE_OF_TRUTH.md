@@ -497,7 +497,8 @@ V1 reports should include:
 - reserved stock;
 - available stock;
 - low stock;
-- inventory movements;- purchase history;
+- inventory movements;
+- purchase history;
 - production workload/status.
 
 ---
@@ -997,7 +998,8 @@ V1 is complete only when all of the following are true:
 2. Role permissions have been tested with representative users.
 3. Printed and plain/no-print sales flows both work end-to-end.
 4. Purchase → receipt → stock ledger works end-to-end.
-5. Reservation → issue → available-stock calculation is reconciled.6. Customer payments and receivables reconcile.
+5. Reservation → issue → available-stock calculation is reconciled.
+6. Customer payments and receivables reconcile.
 7. Migrated customers/products/orders/open inventory/open receivables reconcile against agreed source totals.
 8. Production users cannot access restricted financial/cost data.
 9. Audit trail exists for material operations.
