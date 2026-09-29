@@ -885,7 +885,8 @@ Task status vocabulary:
   - Verified 2026-09-29: added pgTAP smoke coverage at `supabase/tests/database/ops_002_schema_smoke.test.sql`; GitHub Actions run `36532007015` passed the complete fresh migration chain and verified 30 authoritative tables, 10 authoritative views, RLS on all 30 tables, and security-invoker mode on all 10 views.
   - Continued 2026-09-29: added `supabase/migrations/20260929074000_ops_002_production_hardening.sql` to pin helper-function search paths, revoke public/Data API execution of the internal RLS helper, and add remaining foreign-key indexes identified by hosted Supabase advisors.
   - Verified 2026-09-29 against the standalone Supabase project `OPS-WebApp` (`foclxkjnypjolcwqekku`): hosted migration history contains all 12 repository migrations through `20260929074000`; direct database verification confirmed 30 authoritative tables, 10 authoritative views, RLS enabled on all 30 tables, and `security_invoker=true` on all 10 views. Remaining security-advisor findings are INFO-only `RLS Enabled No Policy` findings intentionally deferred to OPS-003; performance-advisor findings are INFO-only unused-index notices on the newly initialized database.
-- **OPS-003 — Authentication and RBAC** — TODO
+- **OPS-003 — Authentication and RBAC** — **IN_PROGRESS**
+  - Started 2026-09-29: added bounded identity/RBAC foundation migration at `supabase/migrations/20260929080000_ops_003_identity_rbac_foundation.sql` covering the `users`, `roles`, and `user_roles` identity model; Supabase Auth user synchronization; the five locked V1 roles; role-membership helpers; and RLS/grants for the RBAC tables themselves. Business-table authorization policies and representative permission verification remain within OPS-003.
 - **OPS-004 — Audit/activity/attachment foundation** — TODO
 
 ## Master Data
@@ -940,11 +941,11 @@ Task status vocabulary:
 
 - Total authoritative tasks: **30**
 - Done: **3**
-- In progress: **0**
+- In progress: **1**
 - Blocked: **0**
-- Todo: **27**
+- Todo: **26**
 
-**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. The next authoritative task is **OPS-003 — Authentication and RBAC** — **TODO**.
+**OPS-002 — Database schema and migrations** is **DONE** after migration application and verification against the standalone OPS Supabase project. **OPS-003 — Authentication and RBAC** is now **IN_PROGRESS**. The identity/RBAC foundation migration exists; the next bounded work remains inside OPS-003.
 
 ---
 
@@ -1038,6 +1039,6 @@ As of **2026-09-29**:
 - UI implementation: **not started**
 - Migration implementation: **not started**
 - Production deployment: **not started**
-- Next authoritative task: **OPS-003 — Authentication and RBAC**
+- Current authoritative task: **OPS-003 — Authentication and RBAC — IN_PROGRESS**
 
 Any later state must be read from this file, not inferred from this paragraph if this file has subsequently been updated.
