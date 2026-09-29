@@ -13,6 +13,12 @@
 -- - SALES receives receivable visibility for follow-up without direct access to
 --   payment records or ledger entries.
 -- - WAREHOUSE and PRINTER_PRODUCTION receive no customer-finance access.
+--
+-- Security note:
+-- The public receivable view remains SECURITY INVOKER. The only privileged
+-- lookup is a narrowly scoped SECURITY DEFINER aggregate helper in a non-exposed
+-- private schema; it returns only the posted-payment total and performs an
+-- application-role check before reading payment rows.
 
 begin;
 
@@ -39,8 +45,8 @@ on public.customer_payments
 for select
 to authenticated
 using (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 );
 
 create policy customer_payments_insert_finance_roles
@@ -48,8 +54,8 @@ on public.customer_payments
 for insert
 to authenticated
 with check (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 );
 
 create policy customer_payments_update_finance_roles
@@ -57,12 +63,12 @@ on public.customer_payments
 for update
 to authenticated
 using (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 )
 with check (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 );
 
 -- No DELETE grant/policy is provided for customer_payments. The schema already
@@ -73,8 +79,8 @@ on public.customer_ledger_entries
 for select
 to authenticated
 using (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 );
 
 create policy customer_ledger_entries_insert_finance_roles
@@ -82,15 +88,55 @@ on public.customer_ledger_entries
 for insert
 to authenticated
 with check (
-  public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
+  (select public.current_user_has_role('OWNER_ADMIN'))
+  or (select public.current_user_has_role('ACCOUNTING'))
 );
 
 -- Ledger rows remain append-only. Existing database triggers reject UPDATE/DELETE,
 -- and no authenticated UPDATE/DELETE privilege is granted here.
 
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+
+create or replace function private.valid_customer_payment_total(p_sales_order_id uuid)
+returns numeric
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_total numeric;
+begin
+  if not (
+    public.current_user_has_role('OWNER_ADMIN')
+    or public.current_user_has_role('ACCOUNTING')
+    or public.current_user_has_role('SALES')
+  ) then
+    return null;
+  end if;
+
+  select coalesce(
+    sum(cp.amount) filter (where cp.status = 'POSTED'),
+    0::numeric
+  )
+  into v_total
+  from public.customer_payments cp
+  where cp.sales_order_id = p_sales_order_id;
+
+  return v_total;
+end;
+$$;
+
+revoke all on function private.valid_customer_payment_total(uuid)
+from public, anon;
+
+grant execute on function private.valid_customer_payment_total(uuid)
+to authenticated;
+
 create or replace view public.sales_receivable_followup
-with (security_barrier = true)
+with (security_barrier = true, security_invoker = true)
 as
 select
   so.id as sales_order_id,
@@ -99,15 +145,8 @@ select
   c.display_name as customer_name,
   so.salesperson_user_id,
   sot.total_amount as order_total_amount,
-  coalesce(
-    sum(cp.amount) filter (where cp.status = 'POSTED'),
-    0::numeric
-  ) as valid_payment_amount,
-  sot.total_amount
-    - coalesce(
-        sum(cp.amount) filter (where cp.status = 'POSTED'),
-        0::numeric
-      ) as receivable_amount,
+  p.valid_payment_amount,
+  sot.total_amount - p.valid_payment_amount as receivable_amount,
   so.currency_code,
   so.payment_status,
   so.order_status,
@@ -118,30 +157,11 @@ join public.sales_order_totals sot
   on sot.sales_order_id = so.id
 join public.customers c
   on c.id = so.customer_id
-left join public.customer_payments cp
-  on cp.sales_order_id = so.id
-where
-  auth.role() = 'service_role'
-  or public.current_user_has_role('OWNER_ADMIN')
-  or public.current_user_has_role('ACCOUNTING')
-  or public.current_user_has_role('SALES')
-group by
-  so.id,
-  so.order_number,
-  so.customer_id,
-  c.display_name,
-  so.salesperson_user_id,
-  sot.total_amount,
-  so.currency_code,
-  so.payment_status,
-  so.order_status,
-  so.order_date,
-  so.requested_due_date;
-
-alter view public.sales_receivable_followup set (security_invoker = false);
+cross join lateral (
+  select private.valid_customer_payment_total(so.id) as valid_payment_amount
+) p;
 
 revoke all on public.sales_receivable_followup from public, anon;
 grant select on public.sales_receivable_followup to authenticated;
-grant all on public.sales_receivable_followup to service_role;
 
 commit;
