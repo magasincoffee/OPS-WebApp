@@ -130,7 +130,7 @@ select throws_ok(
 );
 select throws_ok(
  $$update public.print_jobs set qc_state='PASSED',qc_completed_at=timezone('utc',now()) where job_number='PJ-OPS040-001'$$,
- 'P0001','QC and completion fields are reserved for OPS-042','direct QC mutation blocked'
+ 'P0001','QC and completion fields must use submit_print_job_qc','direct QC mutation blocked'
 );
 select throws_ok(
  $$update public.print_jobs set assignee_user_id='f2100000-0000-0000-0000-000000000002' where job_number='PJ-OPS040-001'$$,

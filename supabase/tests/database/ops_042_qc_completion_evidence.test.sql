@@ -47,9 +47,16 @@ select lives_ok(
  'owner materializes print job'
 );
 select lives_ok(
- $$select public.assign_print_job((select id from public.print_jobs where job_number='PJ-OPS042-001'),'f4100000-0000-0000-0000-000000000002','assign QC printer')$$,
+ $select public.assign_print_job((select id from public.print_jobs where job_number='PJ-OPS042-001'),'f4100000-0000-0000-0000-000000000002','assign QC printer')$,
  'owner assigns production user'
 );
+
+select set_config(
+ 'ops.test_print_job_id',
+ (select id::text from public.print_jobs where job_number='PJ-OPS042-001'),
+ false
+);
+
 
 reset role;
 set local role authenticated;
@@ -97,13 +104,13 @@ set local role authenticated;
 set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000003';
 
 select throws_ok(
- $$select public.create_print_job_evidence_attachment(
-   (select id from public.print_jobs where job_number='PJ-OPS042-001'),
-   'print-jobs/'||(select id::text from public.print_jobs where job_number='PJ-OPS042-001')||'/other.jpg',
+ $select public.create_print_job_evidence_attachment(
+   current_setting('ops.test_print_job_id')::uuid,
+   'print-jobs/'||current_setting('ops.test_print_job_id')||'/other.jpg',
    'other.jpg','image/jpeg',50
- )$$,
+ )$,
  'P0001',
- 'Print job % does not exist or is not visible',
+ 'Print job '||current_setting('ops.test_print_job_id')||' does not exist or is not visible',
  'unassigned production user cannot add QC evidence'
 );
 
@@ -130,11 +137,19 @@ select results_eq(
  'failed QC stores state/evidence and reopens production'
 );
 
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000001';
+
 select is(
  (select print_status from public.sales_orders where order_number='SO-OPS042-001'),
  'IN_PROGRESS',
  'failed QC returns aggregate order print state to IN_PROGRESS'
 );
+
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000002';
 
 select results_eq(
  $$select event_type,from_status,to_status,qc_state,evidence_reference,actor_user_id
@@ -182,11 +197,19 @@ select results_eq(
  'passed QC records completion timestamps and final evidence'
 );
 
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000001';
+
 select is(
  (select print_status from public.sales_orders where order_number='SO-OPS042-001'),
  'COMPLETED',
  'completed required print job synchronizes sales-order print status'
 );
+
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000002';
 
 select results_eq(
  $$select event_type,from_status,to_status,qc_state,evidence_reference,actor_user_id
