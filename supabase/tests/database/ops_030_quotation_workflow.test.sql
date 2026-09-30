@@ -288,7 +288,7 @@ select throws_ok(
 );
 
 select lives_ok(
-  $select public.create_quotation('QT-OPS030-EMPTY','d0200000-0000-0000-0000-000000000001',current_date+7,'VND',null)$,
+  $$select public.create_quotation('QT-OPS030-EMPTY','d0200000-0000-0000-0000-000000000001',current_date+7,'VND',null)$$,
   'empty quotation fixture can be created'
 );
 
