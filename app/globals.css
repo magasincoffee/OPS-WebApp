@@ -26,7 +26,8 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -125,6 +126,10 @@ textarea {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
+}
+
+.topbar .hero-actions {
+  margin-top: 0;
 }
 
 .button {
@@ -229,7 +234,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   border: 1px solid #cfcfcf;
   border-radius: 9px;

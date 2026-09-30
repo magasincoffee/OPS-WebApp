@@ -7,12 +7,15 @@ export default function HomePage() {
         <p className="eyebrow">OPS-WEBAPP</p>
         <h1>Operations WebApp</h1>
         <p>
-          Hệ thống vận hành độc lập cho khách hàng, bán hàng, sản xuất, kho và
-          tài chính.
+          Hệ thống vận hành độc lập cho khách hàng, nhà cung cấp, bán hàng, sản
+          xuất, kho và tài chính.
         </p>
         <div className="hero-actions">
           <Link href="/customers" className="button button-primary">
-            Mở module Khách hàng
+            Khách hàng
+          </Link>
+          <Link href="/suppliers" className="button button-secondary">
+            Nhà cung cấp
           </Link>
           <Link href="/login" className="button button-secondary">
             Đăng nhập
