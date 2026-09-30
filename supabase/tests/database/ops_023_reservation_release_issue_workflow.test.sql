@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(23);
 
 select is(
   has_function_privilege('authenticated','public.inventory_reservation_work_queue()','EXECUTE'),
@@ -287,7 +287,7 @@ select throws_ok(
     1::numeric
   ) $$,
   'P0001',
-  'Reservation quantity must be positive',
+  'Reservation quantity exceeds the outstanding sales-order quantity',
   'fulfilled order line cannot be over-reserved'
 );
 

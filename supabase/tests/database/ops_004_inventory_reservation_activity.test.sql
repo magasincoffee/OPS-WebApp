@@ -120,6 +120,12 @@ values (
   1500000
 );
 
+-- OPS-023 production hardening revokes direct reservation mutation from authenticated.
+-- This legacy OPS-004 audit fixture temporarily restores those table privileges
+-- inside its transaction so it can continue exercising CREATE/UPDATE/DELETE
+-- activity capture directly; ROLLBACK below restores production privileges.
+grant insert, update, delete on public.inventory_reservations to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '9a100000-0000-0000-0000-000000000001';
 
