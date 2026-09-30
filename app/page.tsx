@@ -174,7 +174,7 @@ export default async function HomePage(){
         <article className="metric-card"><span>Open sales orders</span><strong>{openOrders}</strong></article>
         <article className="metric-card"><span>Outstanding orders</span><strong>{outstandingOrders}</strong></article>
       </div>
-      <div className="hero-actions">{navLink("/customers","Khách hàng",true)}{navLink("/quotations","Quotations")}{navLink("/sales-orders","Sales Orders")}{navLink("/deliveries","Deliveries")}{navLink("/receivables","Receivables")}</div>
+      <div className="hero-actions">{navLink("/customers","Khách hàng",true)}{navLink("/quotations","Quotations")}{navLink("/sales-orders","Sales Orders")}{navLink("/deliveries","Deliveries")}{navLink("/receivables","Receivables")}{navLink("/reports","Reports")}</div>
     </section>:null}
 
     {canFinance?<section className="content-card">
@@ -185,7 +185,7 @@ export default async function HomePage(){
         <article className="metric-card"><span>Positive customer/currency balances</span><strong>{positiveBalances}</strong></article>
         <article className="metric-card"><span>Open orders</span><strong>{openOrders}</strong></article>
       </div>
-      <div className="hero-actions">{navLink("/payments","Customer Payments",true)}{navLink("/receivables","Receivables")}{navLink("/sales-orders","Sales Orders")}{navLink("/costing","Costing & Pricing")}{navLink("/receipts","Goods Receipts")}</div>
+      <div className="hero-actions">{navLink("/payments","Customer Payments",true)}{navLink("/receivables","Receivables")}{navLink("/sales-orders","Sales Orders")}{navLink("/costing","Costing & Pricing")}{navLink("/receipts","Goods Receipts")}{navLink("/reports","Reports")}</div>
     </section>:null}
 
     {canWarehouse?<section className="content-card">
@@ -196,7 +196,7 @@ export default async function HomePage(){
         <article className="metric-card"><span>Low-stock SKUs</span><strong>{lowStock.length}</strong></article>
         <article className="metric-card"><span>Orders awaiting delivery setup</span><strong>{deliveryQueue.length}</strong></article>
       </div>
-      <div className="hero-actions">{navLink("/inventory","Inventory",true)}{navLink("/receipts","Goods Receipts")}{navLink("/deliveries","Deliveries")}</div>
+      <div className="hero-actions">{navLink("/inventory","Inventory",true)}{navLink("/receipts","Goods Receipts")}{navLink("/deliveries","Deliveries")}{navLink("/reports","Reports")}</div>
     </section>:null}
 
     {isOwner?<section className="content-card">
@@ -207,7 +207,7 @@ export default async function HomePage(){
         <article className="metric-card"><span>Low-stock SKUs</span><strong>{lowStock.length}</strong></article>
         <article className="metric-card"><span>Outstanding orders</span><strong>{outstandingOrders}</strong></article>
       </div>
-      <div className="hero-actions">{navLink("/suppliers","Suppliers")}{navLink("/products","Products & SKU")}{navLink("/purchases","Purchase Orders")}{navLink("/print-jobs","Print Jobs",true)}</div>
+      <div className="hero-actions">{navLink("/suppliers","Suppliers")}{navLink("/products","Products & SKU")}{navLink("/purchases","Purchase Orders")}{navLink("/print-jobs","Print Jobs",true)}{navLink("/reports","Reports")}</div>
     </section>:null}
 
     {isProduction?<section className="content-card">
@@ -216,7 +216,7 @@ export default async function HomePage(){
         <article className="metric-card"><span>Assigned active jobs</span><strong>{myProductionJobs.length}</strong></article>
         <article className="metric-card"><span>Waiting QC</span><strong>{myWaitingQc}</strong></article>
       </div>
-      <div className="hero-actions">{navLink("/production","My Production Queue",true)}{navLink("/print-jobs","Print Jobs")}</div>
+      <div className="hero-actions">{navLink("/production","My Production Queue",true)}{navLink("/print-jobs","Print Jobs")}{navLink("/reports","Reports")}</div>
     </section>:null}
   </main>;
 }
