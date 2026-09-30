@@ -311,6 +311,9 @@ returns table(
   order_number text,
   customer_name text,
   status text,
+  warehouse_status text,
+  print_status text,
+  order_delivery_status text,
   consignee_name text,
   consignee_phone text,
   consignee_address text,
@@ -342,6 +345,7 @@ begin
   return query
   select
     d.id,d.delivery_number,d.sales_order_id,so.order_number,c.display_name,d.status,
+    so.warehouse_status,so.print_status,so.delivery_status,
     d.consignee_name,d.consignee_phone,d.consignee_address,d.parcel_info,
     d.carrier_note,d.delivery_reference,d.ready_at,d.dispatch_date,d.completed_at,d.notes
   from public.deliveries d

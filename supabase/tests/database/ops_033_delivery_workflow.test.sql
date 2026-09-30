@@ -56,7 +56,11 @@ select results_eq(
   $$select * from (values('NOT_READY'::text,'f1100000-0000-0000-0000-000000000001'::uuid,1::bigint,10::numeric)) as expected(status,created_by_user_id,count,sum)$$,
   'delivery creation binds actor and copies full order manifest'
 );
-select is((select delivery_status from public.sales_orders where id='f1500000-0000-0000-0000-000000000001'),'NOT_READY','order delivery status syncs on create');
+select is(
+  (select order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))),
+  'NOT_READY',
+  'order delivery status syncs on create through operational tracking'
+);
 select throws_ok(
   $$select public.set_delivery_status((select id from public.deliveries where delivery_number='DLV-OPS033-001'),'READY_TO_SHIP',null)$$,
   'P0001','Delivery readiness requires warehouse status ISSUED',
@@ -72,13 +76,21 @@ select lives_ok(
   $$select public.issue_inventory_reservation((select id from public.inventory_reservations where sales_order_item_id='f1600000-0000-0000-0000-000000000001'),10)$$,
   'warehouse issues delivery source order'
 );
-select is((select warehouse_status from public.sales_orders where id='f1500000-0000-0000-0000-000000000001'),'ISSUED','inventory issue makes order delivery-ready at warehouse dimension');
+select is(
+  (select warehouse_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))),
+  'ISSUED',
+  'inventory issue makes order delivery-ready at warehouse dimension'
+);
 
 select lives_ok(
   $$select public.set_delivery_status((select id from public.deliveries where delivery_number='DLV-OPS033-001'),'READY_TO_SHIP',null)$$,
   'issued plain order becomes READY_TO_SHIP'
 );
-select is((select delivery_status from public.sales_orders where id='f1500000-0000-0000-0000-000000000001'),'READY_TO_SHIP','order delivery status syncs to READY_TO_SHIP');
+select is(
+  (select order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))),
+  'READY_TO_SHIP',
+  'order delivery status syncs to READY_TO_SHIP'
+);
 select throws_ok(
   $$update public.delivery_items set quantity_base_units=9 where delivery_id=(select id from public.deliveries where delivery_number='DLV-OPS033-001')$$,
   'P0001','Delivery manifest is editable only while delivery is NOT_READY',
@@ -97,7 +109,11 @@ select lives_ok(
   $$select public.set_delivery_status((select id from public.deliveries where delivery_number='DLV-OPS033-001'),'DISPATCHED',current_date)$$,
   'ready delivery dispatches'
 );
-select is((select delivery_status from public.sales_orders where id='f1500000-0000-0000-0000-000000000001'),'DISPATCHED','order delivery status syncs to DISPATCHED');
+select is(
+  (select order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))),
+  'DISPATCHED',
+  'order delivery status syncs to DISPATCHED'
+);
 select throws_ok(
   $$select public.update_delivery_details((select id from public.deliveries where delivery_number='DLV-OPS033-001'),'Changed',null,null,'changed','changed','changed',null)$$,
   'P0001','Delivery details are editable only before dispatch',
@@ -108,7 +124,7 @@ select lives_ok(
   'dispatched delivery completes'
 );
 select results_eq(
-  $$select d.status,(d.completed_at is not null),so.delivery_status from public.deliveries d join public.sales_orders so on so.id=d.sales_order_id where d.delivery_number='DLV-OPS033-001'$$,
+  $select status,(completed_at is not null),order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))$,
   $$select * from (values('COMPLETED'::text,true,'COMPLETED'::text)) as expected(status,has_completed_at,delivery_status)$$,
   'delivery completion records timestamp and synchronizes order'
 );
@@ -143,7 +159,11 @@ select lives_ok(
   $$select public.create_delivery('DLV-OPS033-PRINTED','f1500000-0000-0000-0000-000000000002','Printed Customer',null,'Can Tho','1 carton','carrier','REF-PRINT',null)$$,
   'create printed-order delivery'
 );
-select is((select print_status from public.sales_orders where id='f1500000-0000-0000-0000-000000000002'),'WAITING','printed source remains WAITING before production completion');
+select is(
+  (select print_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-PRINTED'))),
+  'WAITING',
+  'printed source remains WAITING before production completion'
+);
 select throws_ok(
   $$select public.set_delivery_status((select id from public.deliveries where delivery_number='DLV-OPS033-PRINTED'),'READY_TO_SHIP',null)$$,
   'P0001','Delivery readiness requires print status NOT_REQUIRED or COMPLETED',
@@ -169,7 +189,11 @@ select lives_ok(
   $$select public.set_delivery_status((select id from public.deliveries where delivery_number='DLV-OPS033-CANCEL'),'CANCELLED',null)$$,
   'NOT_READY delivery may be cancelled'
 );
-select is((select delivery_status from public.sales_orders where order_number='SO-OPS033-CANCEL'),'NOT_READY','cancellation resets order delivery status');
+select is(
+  (select order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-CANCEL'))),
+  'NOT_READY',
+  'cancellation resets order delivery status'
+);
 select lives_ok(
   $select public.create_delivery('DLV-OPS033-REPLACEMENT','f1500000-0000-0000-0000-000000000003','Replacement',null,null,null,null,null,null)$,
   'cancelled delivery permits replacement delivery'
