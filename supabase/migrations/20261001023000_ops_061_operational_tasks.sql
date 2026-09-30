@@ -112,6 +112,36 @@ create trigger tasks_guard_assigned_update
 before insert or update on public.tasks
 for each row execute function public.guard_assigned_task_update();
 
+create or replace view public.operational_task_queue
+with (security_invoker=true)
+as
+select
+  t.id as task_id,
+  t.task_type,
+  t.linked_entity_type,
+  t.linked_entity_id,
+  t.assignee_user_id,
+  t.due_at,
+  t.status,
+  t.priority,
+  t.notes,
+  t.completed_at,
+  t.created_by_user_id,
+  t.created_at,
+  t.updated_at,
+  case
+    when t.status not in ('DONE','CANCELLED')
+      and t.due_at is not null
+      and t.due_at < timezone('utc',now())
+      then true
+    else false
+  end as is_overdue
+from public.tasks t;
+
+revoke all on public.operational_task_queue from public,anon;
+grant select on public.operational_task_queue to authenticated;
+grant all on public.operational_task_queue to service_role;
+
 create or replace function public.task_assignee_directory()
 returns table(
   user_id uuid,
