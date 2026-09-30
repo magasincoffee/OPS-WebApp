@@ -101,6 +101,10 @@ values (
   '99000000-0000-0000-0000-000000000001'
 );
 
+-- OPS-031 production hardening routes writes through bounded RPCs.
+-- Restore mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.sales_order_items to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '99000000-0000-0000-0000-000000000001';
 

@@ -64,6 +64,10 @@ values (
   'Activity Capture Customer'
 );
 
+-- OPS-031 production hardening routes writes through bounded RPCs.
+-- Restore mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.sales_orders to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '91000000-0000-0000-0000-000000000001';
 
@@ -83,7 +87,7 @@ values (
 );
 
 update public.sales_orders
-set order_status = 'CONFIRMED'
+set notes = 'Updated sales-order audit fixture'
 where id = '93000000-0000-0000-0000-000000000001';
 
 delete from public.sales_orders
@@ -121,11 +125,11 @@ select is(
     from public.activity_logs
     where linked_entity_id = '93000000-0000-0000-0000-000000000001'
       and action_type = 'SALES_ORDER_UPDATED'
-      and before_data ->> 'order_status' = 'DRAFT'
-      and after_data ->> 'order_status' = 'CONFIRMED'
+      and before_data ->> 'notes' is null
+      and after_data ->> 'notes' = 'Updated sales-order audit fixture'
   ),
   1::bigint,
-  'sales-order update captures before and after status snapshots'
+  'sales-order update captures before and after snapshots'
 );
 
 select is(
