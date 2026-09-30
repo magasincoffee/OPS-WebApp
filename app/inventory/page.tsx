@@ -36,9 +36,33 @@ type Movement = {
   created_by_user_id: string | null;
   occurred_at: string;
 };
+type ReservationQueueRow = {
+  sales_order_item_id: string;
+  sales_order_id: string;
+  inventory_reservation_id: string | null;
+  order_number: string;
+  order_status: string;
+  warehouse_status: string;
+  requested_due_date: string | null;
+  product_variant_id: string;
+  sku_code: string;
+  variant_name: string | null;
+  product_name: string;
+  base_inventory_unit: string;
+  base_quantity: number;
+  issued_quantity: number;
+  reserved_balance_quantity: number;
+  outstanding_quantity: number;
+  available_quantity: number;
+};
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; type?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    type?: string;
+    reservation?: string;
+    error?: string;
+  }>;
 };
 
 function num(value: number) {
@@ -50,6 +74,20 @@ function dateTime(value: string) {
     dateStyle: "short",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function dateOnly(value: string | null) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("vi-VN", { dateStyle: "short" }).format(
+    new Date(`${value}T00:00:00`),
+  );
+}
+
+function workflowState(row: ReservationQueueRow) {
+  if (Number(row.issued_quantity) >= Number(row.base_quantity)) return "ISSUED";
+  if (Number(row.reserved_balance_quantity) > 0) return "RESERVED";
+  if (row.order_status === "CANCELLED") return "CANCELLED";
+  return "WAITING";
 }
 
 export default async function InventoryPage({ searchParams }: PageProps) {
@@ -65,14 +103,14 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       <main className="app-shell">
         <header className="topbar">
           <div>
-            <p className="eyebrow">OPS-WEBAPP · OPS-022</p>
-            <h1>Inventory Ledger</h1>
+            <p className="eyebrow">OPS-WEBAPP · OPS-023</p>
+            <h1>Inventory</h1>
           </div>
           <Link href="/" className="button button-secondary">Trang chủ</Link>
         </header>
         <section className="content-card">
           <p className="permission-note">
-            Inventory ledger và stock snapshot dành cho OWNER/ADMIN và WAREHOUSE.
+            Inventory reservation và ledger dành cho OWNER/ADMIN và WAREHOUSE.
           </p>
         </section>
       </main>
@@ -83,9 +121,10 @@ export default async function InventoryPage({ searchParams }: PageProps) {
   let variants: Variant[];
   let stock: Stock[];
   let movements: Movement[];
+  let queue: ReservationQueueRow[];
 
   try {
-    [products, variants, stock, movements] = await Promise.all([
+    [products, variants, stock, movements, queue] = await Promise.all([
       supabaseRest<Product[]>("products?select=id,name&order=name.asc&limit=2000"),
       supabaseRest<Variant[]>(
         "product_variants?select=id,product_id,sku_code,variant_name,base_inventory_unit,minimum_stock_quantity,is_active&order=sku_code.asc&limit=5000",
@@ -96,6 +135,10 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       supabaseRest<Movement[]>(
         "inventory_movements?select=id,product_variant_id,movement_type,quantity_delta_base_units,goods_receipt_item_id,inventory_reservation_id,sales_order_item_id,reference,reason,created_by_user_id,occurred_at&order=occurred_at.desc,created_at.desc&limit=2000",
       ),
+      supabaseRest<ReservationQueueRow[]>("rpc/inventory_reservation_work_queue", {
+        method: "POST",
+        body: "{}",
+      }),
     ]);
   } catch (error) {
     if (error instanceof SupabaseRestError && error.status === 401) {
@@ -149,10 +192,10 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     <main className="app-shell">
       <header className="topbar">
         <div>
-          <p className="eyebrow">OPS-WEBAPP · OPS-022</p>
-          <h1>Inventory Ledger</h1>
+          <p className="eyebrow">OPS-WEBAPP · OPS-023</p>
+          <h1>Inventory</h1>
           <p className="muted">
-            Single-warehouse stock truth: on hand / reserved / available được dẫn xuất từ immutable inventory movements.
+            Reserve, release và issue theo sales-order line; stock truth vẫn chỉ đến từ immutable inventory movements.
           </p>
         </div>
         <div className="hero-actions">
@@ -164,11 +207,115 @@ export default async function InventoryPage({ searchParams }: PageProps) {
         </div>
       </header>
 
+      {state.reservation ? (
+        <section className="content-card">
+          <p className="permission-note">Inventory action completed: {state.reservation}.</p>
+        </section>
+      ) : null}
+
+      {state.error ? (
+        <section className="content-card">
+          <p className="permission-note">
+            Không thể hoàn tất inventory action ({state.error}). Kiểm tra số lượng, trạng thái đơn hàng và available stock.
+          </p>
+        </section>
+      ) : null}
+
       <section className="metric-grid">
         <article className="metric-card"><span>SKU tracked</span><strong>{variants.length}</strong></article>
         <article className="metric-card"><span>On hand</span><strong className="metric-small">{num(totalOnHand)}</strong></article>
         <article className="metric-card"><span>Reserved</span><strong className="metric-small">{num(totalReserved)}</strong></article>
         <article className="metric-card"><span>Available</span><strong className="metric-small">{num(totalAvailable)}</strong></article>
+      </section>
+
+      <section className="content-card">
+        <div className="section-heading">
+          <div>
+            <h2>Reservation / release / issue queue</h2>
+            <p className="muted">
+              Queue chỉ chứa dữ liệu vận hành cần cho kho; không mở quyền đọc bảng sales hoặc selling-price data cho WAREHOUSE.
+            </p>
+          </div>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th><th>SKU</th><th>Due</th><th>Base qty</th><th>Issued</th>
+                <th>Reserved</th><th>Outstanding</th><th>Available</th><th>State</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {queue.map((row) => {
+                const outstanding = Number(row.outstanding_quantity);
+                const reserved = Number(row.reserved_balance_quantity);
+                const available = Number(row.available_quantity);
+                const reserveMax = Math.max(Math.min(outstanding, available), 0);
+                const canReserve = row.order_status === "CONFIRMED" && reserveMax > 0;
+                const canIssue = row.order_status === "CONFIRMED" && reserved > 0;
+                return (
+                  <tr key={row.sales_order_item_id}>
+                    <td>
+                      <strong>{row.order_number}</strong>
+                      <div className="subtle">{row.order_status} · {row.warehouse_status}</div>
+                    </td>
+                    <td><strong>{row.sku_code}</strong><div className="subtle">{row.product_name}</div></td>
+                    <td>{dateOnly(row.requested_due_date)}</td>
+                    <td>{num(row.base_quantity)} {row.base_inventory_unit}</td>
+                    <td>{num(row.issued_quantity)}</td>
+                    <td>{num(reserved)}</td>
+                    <td>{num(outstanding)}</td>
+                    <td>{num(available)}</td>
+                    <td>{workflowState(row)}</td>
+                    <td>
+                      <div className="form-stack">
+                        {canReserve ? (
+                          <form action="/api/inventory/reservations" method="post" className="search-form">
+                            <input type="hidden" name="sales_order_item_id" value={row.sales_order_item_id} />
+                            <input
+                              type="number"
+                              name="quantity"
+                              min="0.000001"
+                              max={reserveMax}
+                              step="any"
+                              defaultValue={reserveMax}
+                              aria-label={`Reserve quantity for ${row.order_number} ${row.sku_code}`}
+                            />
+                            <button type="submit" className="button button-secondary">Reserve</button>
+                          </form>
+                        ) : null}
+                        {row.inventory_reservation_id && reserved > 0 ? (
+                          <>
+                            <form
+                              action={`/api/inventory/reservations/${row.inventory_reservation_id}/release`}
+                              method="post"
+                              className="search-form"
+                            >
+                              <input type="number" name="quantity" min="0.000001" max={reserved} step="any" defaultValue={reserved} aria-label="Release quantity" />
+                              <button type="submit" className="button button-secondary">Release</button>
+                            </form>
+                            {canIssue ? (
+                              <form
+                                action={`/api/inventory/reservations/${row.inventory_reservation_id}/issue`}
+                                method="post"
+                                className="search-form"
+                              >
+                                <input type="number" name="quantity" min="0.000001" max={reserved} step="any" defaultValue={reserved} aria-label="Issue quantity" />
+                                <button type="submit" className="button button-primary">Issue</button>
+                              </form>
+                            ) : null}
+                          </>
+                        ) : null}
+                        {!canReserve && reserved <= 0 ? <span className="subtle">—</span> : null}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {queue.length === 0 ? <tr><td colSpan={10} className="empty-state">Không có sales-order line cần xử lý kho.</td></tr> : null}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="content-card">
@@ -250,7 +397,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       <section className="content-card">
         <h2>Workflow boundary</h2>
         <p className="muted">
-          OPS-022 hiện post GOODS_RECEIPT vào ledger và append cost history. SALES_RESERVATION / RESERVATION_RELEASE / SALES_ISSUE thuộc OPS-023.
+          OPS-023 quản lý SALES_RESERVATION / RESERVATION_RELEASE / SALES_ISSUE và đồng bộ warehouse status từ ledger.
           STOCKTAKE_ADJUSTMENT / ADJUSTMENT_IN / ADJUSTMENT_OUT và low-stock workflow thuộc OPS-024.
         </p>
       </section>
