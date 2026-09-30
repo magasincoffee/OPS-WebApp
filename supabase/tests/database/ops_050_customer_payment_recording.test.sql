@@ -81,8 +81,8 @@ select is((select payment_status from public.sales_orders where id='f5500000-000
 
 select is(
  (select count(*) from public.customer_ledger_entries where customer_id='f5200000-0000-0000-0000-000000000001'),
- 0::bigint,
- 'OPS-050 does not create customer-ledger entries reserved for OPS-051'
+ 3::bigint,
+ 'OPS-051 automatically materializes one order debit and two source-backed payment credits'
 );
 
 select lives_ok(

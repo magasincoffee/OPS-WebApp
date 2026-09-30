@@ -24,6 +24,7 @@ export default function HomePage() {
           <Link href="/print-jobs" className="button button-secondary">Print Jobs</Link>
           <Link href="/production" className="button button-secondary">Production Queue</Link>
           <Link href="/payments" className="button button-secondary">Customer Payments</Link>
+          <Link href="/receivables" className="button button-secondary">Receivables</Link>
           <Link href="/login" className="button button-secondary">Đăng nhập</Link>
         </div>
       </section>
