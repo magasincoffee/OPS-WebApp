@@ -96,6 +96,10 @@ values (
   'OPS-004 stocktake-item activity test parent stocktake'
 );
 
+-- OPS-024 production hardening routes stocktake-item writes through bounded RPCs.
+-- Restore table mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.stocktake_items to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '9c100000-0000-0000-0000-000000000001';
 

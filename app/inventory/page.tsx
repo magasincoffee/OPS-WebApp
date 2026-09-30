@@ -36,6 +36,36 @@ type Movement = {
   created_by_user_id: string | null;
   occurred_at: string;
 };
+type LowStock = {
+  product_variant_id: string;
+  sku_code: string;
+  variant_name: string | null;
+  product_name: string;
+  base_inventory_unit: string;
+  minimum_stock_quantity: number;
+  on_hand_quantity: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  shortage_quantity: number;
+};
+type Stocktake = {
+  id: string;
+  stocktake_number: string;
+  stocktake_date: string;
+  status: string;
+  counted_at: string | null;
+  posted_at: string | null;
+  notes: string | null;
+};
+type StocktakeItem = {
+  id: string;
+  stocktake_id: string;
+  product_variant_id: string;
+  system_on_hand_quantity: number;
+  counted_on_hand_quantity: number | null;
+  variance_quantity: number | null;
+  notes: string | null;
+};
 type ReservationQueueRow = {
   sales_order_item_id: string;
   sales_order_id: string;
@@ -62,6 +92,8 @@ type PageProps = {
     type?: string;
     reservation?: string;
     error?: string;
+    action?: string;
+    stocktake?: string;
   }>;
 };
 
@@ -103,7 +135,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       <main className="app-shell">
         <header className="topbar">
           <div>
-            <p className="eyebrow">OPS-WEBAPP · OPS-023</p>
+            <p className="eyebrow">OPS-WEBAPP · OPS-024</p>
             <h1>Inventory</h1>
           </div>
           <Link href="/" className="button button-secondary">Trang chủ</Link>
@@ -122,9 +154,11 @@ export default async function InventoryPage({ searchParams }: PageProps) {
   let stock: Stock[];
   let movements: Movement[];
   let queue: ReservationQueueRow[];
+  let lowStock: LowStock[];
+  let stocktakes: Stocktake[];
 
   try {
-    [products, variants, stock, movements, queue] = await Promise.all([
+    [products, variants, stock, movements, queue, lowStock, stocktakes] = await Promise.all([
       supabaseRest<Product[]>("products?select=id,name&order=name.asc&limit=2000"),
       supabaseRest<Variant[]>(
         "product_variants?select=id,product_id,sku_code,variant_name,base_inventory_unit,minimum_stock_quantity,is_active&order=sku_code.asc&limit=5000",
@@ -139,6 +173,12 @@ export default async function InventoryPage({ searchParams }: PageProps) {
         method: "POST",
         body: "{}",
       }),
+      supabaseRest<LowStock[]>(
+        "inventory_low_stock?select=product_variant_id,sku_code,variant_name,product_name,base_inventory_unit,minimum_stock_quantity,on_hand_quantity,reserved_quantity,available_quantity,shortage_quantity&order=shortage_quantity.desc,sku_code.asc&limit=5000",
+      ),
+      supabaseRest<Stocktake[]>(
+        "stocktakes?select=id,stocktake_number,stocktake_date,status,counted_at,posted_at,notes&order=stocktake_date.desc,created_at.desc&limit=100",
+      ),
     ]);
   } catch (error) {
     if (error instanceof SupabaseRestError && error.status === 401) {
@@ -146,6 +186,18 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     }
     throw error;
   }
+
+  const selectedStocktakeId =
+    state.stocktake ?? stocktakes.find((row) => row.status !== "POSTED")?.id ?? stocktakes[0]?.id ?? null;
+  let stocktakeItems: StocktakeItem[] = [];
+  if (selectedStocktakeId) {
+    stocktakeItems = await supabaseRest<StocktakeItem[]>(
+      `stocktake_items?stocktake_id=eq.${encodeURIComponent(selectedStocktakeId)}&select=id,stocktake_id,product_variant_id,system_on_hand_quantity,counted_on_hand_quantity,variance_quantity,notes&order=created_at.asc&limit=5000`,
+    );
+  }
+  const selectedStocktake = stocktakes.find((row) => row.id === selectedStocktakeId);
+  const allStocktakeItemsCounted =
+    stocktakeItems.length > 0 && stocktakeItems.every((row) => row.counted_on_hand_quantity !== null);
 
   const productById = new Map(products.map((row) => [row.id, row]));
   const variantById = new Map(variants.map((row) => [row.id, row]));
@@ -192,7 +244,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     <main className="app-shell">
       <header className="topbar">
         <div>
-          <p className="eyebrow">OPS-WEBAPP · OPS-023</p>
+          <p className="eyebrow">OPS-WEBAPP · OPS-024</p>
           <h1>Inventory</h1>
           <p className="muted">
             Reserve, release và issue theo sales-order line; stock truth vẫn chỉ đến từ immutable inventory movements.
@@ -206,6 +258,12 @@ export default async function InventoryPage({ searchParams }: PageProps) {
           </form>
         </div>
       </header>
+
+      {state.action ? (
+        <section className="content-card">
+          <p className="permission-note">Inventory action completed: {state.action}.</p>
+        </section>
+      ) : null}
 
       {state.reservation ? (
         <section className="content-card">
@@ -318,6 +376,144 @@ export default async function InventoryPage({ searchParams }: PageProps) {
         </div>
       </section>
 
+
+      <section className="content-card">
+        <div className="section-heading">
+          <div>
+            <h2>Low-stock</h2>
+            <p className="muted">Available quantity so với minimum stock đã cấu hình cho SKU.</p>
+          </div>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>SKU</th><th>Product</th><th>On hand</th><th>Reserved</th><th>Available</th><th>Minimum</th><th>Shortage</th></tr></thead>
+            <tbody>
+              {lowStock.map((row) => (
+                <tr key={row.product_variant_id}>
+                  <td><strong>{row.sku_code}</strong>{row.variant_name ? <div className="subtle">{row.variant_name}</div> : null}</td>
+                  <td>{row.product_name}</td>
+                  <td>{num(row.on_hand_quantity)}</td>
+                  <td>{num(row.reserved_quantity)}</td>
+                  <td>{num(row.available_quantity)}</td>
+                  <td>{num(row.minimum_stock_quantity)}</td>
+                  <td>{num(row.shortage_quantity)} {row.base_inventory_unit}</td>
+                </tr>
+              ))}
+              {lowStock.length === 0 ? <tr><td colSpan={7} className="empty-state">Không có SKU dưới ngưỡng minimum stock.</td></tr> : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="content-card">
+        <h2>Manual adjustment</h2>
+        <p className="muted">Số dương = ADJUSTMENT_IN, số âm = ADJUSTMENT_OUT. Reason bắt buộc.</p>
+        <form action="/api/inventory/operations" method="post" className="form-stack">
+          <input type="hidden" name="operation" value="adjust_inventory" />
+          <label>SKU
+            <select name="product_variant_id" required defaultValue="">
+              <option value="" disabled>Chọn SKU</option>
+              {variants.filter((row) => row.is_active).map((row) => (
+                <option key={row.id} value={row.id}>{row.sku_code} · {row.variant_name ?? productById.get(row.product_id)?.name ?? ""}</option>
+              ))}
+            </select>
+          </label>
+          <label>Quantity delta<input type="number" name="quantity_delta" step="any" required placeholder="+10 hoặc -3" /></label>
+          <label>Reason<input name="reason" required placeholder="Hàng hỏng, correction, tìm thấy hàng..." /></label>
+          <button type="submit" className="button button-primary">Ghi adjustment</button>
+        </form>
+      </section>
+
+      <section className="content-card">
+        <div className="section-heading">
+          <div>
+            <h2>Stocktake</h2>
+            <p className="muted">Snapshot on-hand từ ledger → đếm thực tế → COUNTED → post variance.</p>
+          </div>
+          <form action="/api/inventory/operations" method="post" className="search-form">
+            <input type="hidden" name="operation" value="create_stocktake" />
+            <input name="stocktake_number" required placeholder="ST-2026-09-30-01" />
+            <input name="notes" placeholder="Ghi chú..." />
+            <button type="submit" className="button button-primary">Tạo snapshot</button>
+          </form>
+        </div>
+
+        <div className="hero-actions">
+          {stocktakes.map((row) => (
+            <Link
+              key={row.id}
+              href={`/inventory?stocktake=${row.id}`}
+              className="button button-secondary"
+            >
+              {row.stocktake_number} · {row.status}
+            </Link>
+          ))}
+        </div>
+
+        {selectedStocktake ? (
+          <>
+            <div className="section-heading">
+              <div>
+                <h3>{selectedStocktake.stocktake_number} · {selectedStocktake.status}</h3>
+                <p className="muted">
+                  {stocktakeItems.length} SKU · {stocktakeItems.filter((row) => Number(row.variance_quantity ?? 0) !== 0).length} variance line(s)
+                </p>
+              </div>
+              <div className="hero-actions">
+                {selectedStocktake.status === "DRAFT" && allStocktakeItemsCounted ? (
+                  <form action="/api/inventory/operations" method="post">
+                    <input type="hidden" name="operation" value="finalize_stocktake" />
+                    <input type="hidden" name="stocktake_id" value={selectedStocktake.id} />
+                    <button type="submit" className="button button-primary">Chốt COUNTED</button>
+                  </form>
+                ) : null}
+                {selectedStocktake.status === "COUNTED" ? (
+                  <form action="/api/inventory/operations" method="post">
+                    <input type="hidden" name="operation" value="post_stocktake" />
+                    <input type="hidden" name="stocktake_id" value={selectedStocktake.id} />
+                    <button type="submit" className="button button-primary">Post variance</button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>SKU</th><th>System</th><th>Counted</th><th>Variance</th><th>Action</th></tr></thead>
+                <tbody>
+                  {stocktakeItems.map((item) => {
+                    const variant = variantById.get(item.product_variant_id);
+                    return (
+                      <tr key={item.id}>
+                        <td><strong>{variant?.sku_code ?? item.product_variant_id}</strong></td>
+                        <td>{num(item.system_on_hand_quantity)}</td>
+                        <td>{item.counted_on_hand_quantity === null ? "—" : num(item.counted_on_hand_quantity)}</td>
+                        <td>{item.variance_quantity === null ? "—" : num(item.variance_quantity)}</td>
+                        <td>
+                          {selectedStocktake.status === "DRAFT" ? (
+                            <form action="/api/inventory/operations" method="post" className="search-form">
+                              <input type="hidden" name="operation" value="count_stocktake" />
+                              <input type="hidden" name="stocktake_id" value={selectedStocktake.id} />
+                              <input type="hidden" name="stocktake_item_id" value={item.id} />
+                              <input type="number" name="counted_quantity" min="0" step="any" required defaultValue={item.counted_on_hand_quantity ?? ""} />
+                              <input name="notes" defaultValue={item.notes ?? ""} placeholder="Ghi chú..." />
+                              <button type="submit" className="button button-secondary">Lưu đếm</button>
+                            </form>
+                          ) : item.notes ?? "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {stocktakeItems.length === 0 ? <tr><td colSpan={5} className="empty-state">Không có SKU active trong snapshot.</td></tr> : null}
+                </tbody>
+              </table>
+            </div>
+            <p className="muted">
+              Post bị chặn nếu ledger on-hand đã thay đổi sau snapshot, tránh ghi variance stale.
+            </p>
+          </>
+        ) : <p className="empty-state">Chưa có stocktake.</p>}
+      </section>
+
       <section className="content-card">
         <div className="section-heading">
           <div>
@@ -397,8 +593,8 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       <section className="content-card">
         <h2>Workflow boundary</h2>
         <p className="muted">
-          OPS-023 quản lý SALES_RESERVATION / RESERVATION_RELEASE / SALES_ISSUE và đồng bộ warehouse status từ ledger.
-          STOCKTAKE_ADJUSTMENT / ADJUSTMENT_IN / ADJUSTMENT_OUT và low-stock workflow thuộc OPS-024.
+          OPS-024 bổ sung stocktake, reasoned manual adjustments và low-stock trên cùng immutable ledger.
+          Quotation / sales-order authoring vẫn thuộc OPS-030 / OPS-031.
         </p>
       </section>
     </main>

@@ -57,6 +57,10 @@ select
 from public.roles r
 where r.code = 'OWNER_ADMIN';
 
+-- OPS-024 production hardening routes stocktake writes through bounded RPCs.
+-- Restore table mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.stocktakes to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '9b100000-0000-0000-0000-000000000001';
 
