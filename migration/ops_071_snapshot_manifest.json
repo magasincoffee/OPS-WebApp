@@ -1,0 +1,38 @@
+{
+  "task_id": "OPS-071",
+  "architecture_generation": 1,
+  "run_id": "OPS071-20261001-A",
+  "exported_at": "2026-10-01T12:00:00+07:00",
+  "snapshot_folder": {
+    "drive_id": "1XovuMTjYB64S9hbaugi0S0dNBCFLhDQm",
+    "title": "OPS-WebApp Migration Snapshots"
+  },
+  "sources": [
+    {
+      "source_key": "thu_chi",
+      "source_file_id": "1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ",
+      "source_modified_at": "2026-09-30T09:15:20.915Z",
+      "snapshot_drive_id": "1Vg9PULNdnaKJTBzeOOgF5Vx_sExDBpE-",
+      "snapshot_file_name": "OPS-071_2026-10-01_SO-THU-CHI.xlsx",
+      "byte_size": 537801,
+      "sha256": "cd4654a3f73b4948f7ab42200fdd5414e37e910c460a2bf5a7d1fa8b49a3d355",
+      "export_format": "xlsx"
+    },
+    {
+      "source_key": "gia_von",
+      "source_file_id": "1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y",
+      "source_modified_at": "2026-09-30T08:48:18.726Z",
+      "snapshot_drive_id": "1qvCh7DpyqP8YQoFVZ9OsnCaHD0PYI1qL",
+      "snapshot_file_name": "OPS-071_2026-10-01_BANG-GIA-VON.xlsx",
+      "byte_size": 387275,
+      "sha256": "b7dff499f94cac04984b51b4cd22889dfc6e1e751309ff63728c6331b75c5689",
+      "export_format": "xlsx"
+    }
+  ],
+  "policy": {
+    "sources_are_read_only": true,
+    "staging_outputs_are_not_committed_to_git": true,
+    "opening_inventory_is_staged_for_ops_072": true,
+    "quarantined_rows_are_never_silently_dropped": true
+  }
+}
