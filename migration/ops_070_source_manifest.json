@@ -357,13 +357,14 @@
   },
   "next_task_contract": {
     "task_id": "OPS-071",
-    "may_execute_migration": false,
     "required_outputs": [
       "deterministic extraction/staging scripts",
       "mapping implementation matching this manifest",
       "quarantine output with source_row_reference",
       "reconciliation report inputs",
       "immutable snapshot verification"
-    ]
-  }
+    ],
+    "migration_execution_belongs_to_ops_071": true
+  },
+  "ops_070_executes_migration": false
 }
