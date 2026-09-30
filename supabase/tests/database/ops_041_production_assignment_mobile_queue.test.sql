@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(26);
+select plan(27);
 
 select is(has_function_privilege('authenticated','public.production_assignee_directory()','EXECUTE'),true,'assignee directory RPC available');
 select is(has_function_privilege('authenticated','public.assign_print_job(uuid,uuid,text)','EXECUTE'),true,'assignment RPC available');
@@ -61,9 +61,18 @@ select lives_ok(
   'create first WAITING job'
 );
 select lives_ok(
-  $$select public.create_print_job_from_requirement('PJ-OPS041-002','f3600000-0000-0000-0000-000000000002','assignment validation job')$$,
+  $select public.create_print_job_from_requirement('PJ-OPS041-002','f3600000-0000-0000-0000-000000000002','assignment validation job')$,
   'create second WAITING job'
 );
+
+select throws_ok(
+  $update public.print_jobs
+    set assignee_user_id='f3100000-0000-0000-0000-000000000002'
+    where job_number='PJ-OPS041-002'$,
+  'P0001','Print-job assignment changes must use assign_print_job',
+  'direct WAITING assignment cannot bypass assignment history RPC'
+);
+
 
 select throws_ok(
   $$select public.set_print_job_status((select id from public.print_jobs where job_number='PJ-OPS041-001'),'ACCEPTED',null)$$,

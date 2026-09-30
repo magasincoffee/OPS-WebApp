@@ -230,7 +230,7 @@ values
     2,
     'Two-color attachment access test',
     current_date + 1,
-    '95000000-0000-0000-0000-000000000001',
+    null,
     '95000000-0000-0000-0000-000000000001'
   );
 

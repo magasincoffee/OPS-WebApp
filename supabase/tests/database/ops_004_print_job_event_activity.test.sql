@@ -55,7 +55,7 @@ select
   '95000000-0000-0000-0000-000000000001'::uuid,
   r.id
 from public.roles r
-where r.code = 'OWNER_ADMIN';
+where r.code in ('OWNER_ADMIN','PRINTER_PRODUCTION');
 
 insert into public.customers (id, customer_code, display_name)
 values (

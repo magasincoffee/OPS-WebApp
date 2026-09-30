@@ -63,6 +63,10 @@ begin
       raise exception 'Print-job assignment is locked unless job is WAITING';
     end if;
 
+    if coalesce(current_setting('ops.print_job_assignment_rpc',true),'off')<>'on' then
+      raise exception 'Print-job assignment changes must use assign_print_job';
+    end if;
+
     if new.assignee_user_id is not null then
       select exists(
         select 1
@@ -181,9 +185,13 @@ begin
     raise exception 'Print-job assignee is unchanged';
   end if;
 
+  perform set_config('ops.print_job_assignment_rpc','on',true);
+
   update public.print_jobs
   set assignee_user_id=p_assignee_user_id
   where id=p_print_job_id;
+
+  perform set_config('ops.print_job_assignment_rpc','off',true);
 
   insert into public.print_job_events(
     print_job_id,event_type,from_status,to_status,qc_state,assignee_user_id,actor_user_id,note
