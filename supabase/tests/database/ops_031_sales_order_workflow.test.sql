@@ -60,10 +60,14 @@ reset role;
 
 select results_eq($$select count(*)::bigint from public.sales_orders where order_number='SO-OPS031-DIRECT' and order_status='CONFIRMED' and confirmed_at is not null and warehouse_status='NOT_RESERVED' and payment_status='UNPAID' and delivery_status='NOT_READY'$$,array[1::bigint],'confirmation preserves independent dimensions');
 
-insert into public.inventory_movements(product_variant_id,movement_type,quantity_delta_base_units,reason) values('e0400000-0000-0000-0000-000000000001','ADJUSTMENT_IN',100,'OPS-031 fixture stock');
-
 set local role authenticated;
 set local request.jwt.claim.sub='e0100000-0000-0000-0000-000000000002';
+
+select public.adjust_inventory(
+  'e0400000-0000-0000-0000-000000000001',
+  100,
+  'OPS-031 fixture stock'
+);
 select results_eq($$select count(*)::bigint from public.inventory_reservation_work_queue() where order_number='SO-OPS031-DIRECT' and outstanding_quantity=10 and available_quantity=100$$,array[1::bigint],'confirmed order enters reservation queue');
 select lives_ok($$select public.reserve_sales_order_item((select sales_order_item_id from public.inventory_reservation_work_queue() where order_number='SO-OPS031-DIRECT'),10)$$,'warehouse reserves confirmed order');
 reset role;
