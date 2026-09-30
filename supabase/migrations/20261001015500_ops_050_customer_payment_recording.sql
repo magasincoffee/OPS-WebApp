@@ -198,8 +198,7 @@ begin
   select so.customer_id,so.order_status
   into v_customer_id,v_order_status
   from public.sales_orders so
-  where so.id=p_sales_order_id
-  for update;
+  where so.id=p_sales_order_id;
 
   if not found then raise exception 'Sales order % does not exist',p_sales_order_id; end if;
   if v_order_status<>'CONFIRMED' then
