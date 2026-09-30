@@ -45,7 +45,7 @@ export default async function SalesOrderDetailPage({params,searchParams}:PagePro
   const printBranch=printedLineCount===0?"PLAIN_BYPASS":plainLineCount===0?"PRINTED":"MIXED";
 
   return <main className="app-shell">
-    <header className="topbar"><div><p className="eyebrow">OPS-WEBAPP · OPS-032</p><h1>{order.order_number}</h1><p className="muted">{customerById.get(order.customer_id)?.display_name??"Customer"} · {order.order_status}</p></div><div className="hero-actions"><Link href="/sales-orders" className="button button-secondary">Sales Orders</Link><Link href="/inventory" className="button button-secondary">Inventory</Link></div></header>
+    <header className="topbar"><div><p className="eyebrow">OPS-WEBAPP · OPS-033</p><h1>{order.order_number}</h1><p className="muted">{customerById.get(order.customer_id)?.display_name??"Customer"} · {order.order_status}</p></div><div className="hero-actions"><Link href="/sales-orders" className="button button-secondary">Sales Orders</Link><Link href="/deliveries" className="button button-secondary">Deliveries</Link><Link href="/inventory" className="button button-secondary">Inventory</Link></div></header>
     {state.action?<section className="content-card"><p className="permission-note">Sales-order action completed: {state.action}.</p></section>:null}
     {state.error?<section className="content-card"><p className="permission-note">Không thể hoàn tất thao tác ({state.error}).</p></section>:null}
 

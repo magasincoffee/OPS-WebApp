@@ -113,8 +113,7 @@ values (
 
 update public.deliveries
 set
-  status = 'READY_TO_SHIP',
-  ready_at = timezone('utc', now()),
+  parcel_info = '1 carton',
   notes = 'OPS-004 delivery activity test updated'
 where id = '98000000-0000-0000-0000-000000000001';
 
@@ -156,7 +155,9 @@ select is(
     where linked_entity_id = '98000000-0000-0000-0000-000000000001'
       and action_type = 'DELIVERY_UPDATED'
       and before_data ->> 'status' = 'NOT_READY'
-      and after_data ->> 'status' = 'READY_TO_SHIP'
+      and after_data ->> 'status' = 'NOT_READY'
+      and before_data ->> 'parcel_info' is null
+      and after_data ->> 'parcel_info' = '1 carton'
       and before_data ->> 'notes' = 'OPS-004 delivery activity test'
       and after_data ->> 'notes' = 'OPS-004 delivery activity test updated'
   ),
