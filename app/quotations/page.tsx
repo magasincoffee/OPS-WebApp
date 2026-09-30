@@ -92,9 +92,6 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
 
   const customerById = new Map(customers.map((row) => [row.id, row]));
   const totalById = new Map(totals.map((row) => [row.quotation_id, row]));
-  const defaultValidUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
 
   return (
     <main className="app-shell">
@@ -169,7 +166,7 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
               </select>
             </label>
             <div className="form-row">
-              <label>Valid until<input type="date" name="valid_until" defaultValue={defaultValidUntil} /></label>
+              <label>Valid until<input type="date" name="valid_until" /></label>
               <label>Currency<input name="currency_code" defaultValue="VND" pattern="[A-Za-z]{3}" required /></label>
             </div>
             <label>Ghi chú<textarea name="notes" rows={3} /></label>

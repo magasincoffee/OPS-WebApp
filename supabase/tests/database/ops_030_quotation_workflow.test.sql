@@ -163,7 +163,7 @@ select results_eq(
 
 select results_eq(
   $$
-    select subtotal_amount,discount_amount,total_amount,currency_code
+    select qt.subtotal_amount,qt.discount_amount,qt.total_amount,qt.currency_code
     from public.quotation_totals qt
     join public.quotations q on q.id=qt.quotation_id
     where q.quotation_number='QT-OPS030-001'
@@ -287,9 +287,8 @@ select throws_ok(
   'printed quotation line requires color count'
 );
 
-select throws_ok(
-  $$select public.create_quotation('QT-OPS030-EMPTY','d0200000-0000-0000-0000-000000000001',current_date+7,'VND',null)$$,
-  null,null,
+select lives_ok(
+  $select public.create_quotation('QT-OPS030-EMPTY','d0200000-0000-0000-0000-000000000001',current_date+7,'VND',null)$,
   'empty quotation fixture can be created'
 );
 
