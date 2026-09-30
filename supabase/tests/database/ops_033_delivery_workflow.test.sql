@@ -124,7 +124,7 @@ select lives_ok(
   'dispatched delivery completes'
 );
 select results_eq(
-  $select status,(completed_at is not null),order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))$,
+  $$select status,(completed_at is not null),order_delivery_status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-001'))$$,
   $$select * from (values('COMPLETED'::text,true,'COMPLETED'::text)) as expected(status,has_completed_at,delivery_status)$$,
   'delivery completion records timestamp and synchronizes order'
 );
@@ -182,7 +182,7 @@ set local role authenticated;
 set local request.jwt.claim.sub='f1100000-0000-0000-0000-000000000001';
 
 select lives_ok(
-  $select public.create_delivery('DLV-OPS033-CANCEL','f1500000-0000-0000-0000-000000000003','Cancel Customer',null,null,null,null,null,null)$,
+  $$select public.create_delivery('DLV-OPS033-CANCEL','f1500000-0000-0000-0000-000000000003','Cancel Customer',null,null,null,null,null,null)$$,
   'create cancellable delivery'
 );
 select lives_ok(
@@ -195,12 +195,12 @@ select is(
   'cancellation resets order delivery status'
 );
 select lives_ok(
-  $select public.create_delivery('DLV-OPS033-REPLACEMENT','f1500000-0000-0000-0000-000000000003','Replacement',null,null,null,null,null,null)$,
+  $$select public.create_delivery('DLV-OPS033-REPLACEMENT','f1500000-0000-0000-0000-000000000003','Replacement',null,null,null,null,null,null)$$,
   'cancelled delivery permits replacement delivery'
 );
 select results_eq(
-  $select delivery_number,order_number,status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-REPLACEMENT'))$,
-  $select * from (values('DLV-OPS033-REPLACEMENT'::text,'SO-OPS033-CANCEL'::text,'NOT_READY'::text)) as expected(delivery_number,order_number,status)$,
+  $$select delivery_number,order_number,status from public.delivery_tracking((select id from public.deliveries where delivery_number='DLV-OPS033-REPLACEMENT'))$$,
+  $$select * from (values('DLV-OPS033-REPLACEMENT'::text,'SO-OPS033-CANCEL'::text,'NOT_READY'::text)) as expected(delivery_number,order_number,status)$$,
   'delivery tracking exposes operational linkage without financial fields'
 );
 
