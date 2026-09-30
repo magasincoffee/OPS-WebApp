@@ -1,6 +1,7 @@
 -- OPS-061: operational task workflow
 -- Architecture Generation 1
 -- Source of Truth: SOURCE_OF_TRUTH.md
+-- Verification touch: OPS-061 pgTAP fix validated by fresh database CI.
 begin;
 
 create or replace function public.guard_assigned_task_update()
