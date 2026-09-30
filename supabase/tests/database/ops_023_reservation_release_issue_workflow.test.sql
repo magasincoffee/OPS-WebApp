@@ -91,7 +91,7 @@ values (
   'b8500000-0000-0000-0000-000000000001',
   'OPS023-SO',
   'b8200000-0000-0000-0000-000000000001',
-  'CONFIRMED',
+  'DRAFT',
   'NOT_RESERVED'
 );
 
@@ -109,6 +109,11 @@ values (
   100,
   'PLAIN'
 );
+
+-- OPS-031 authoring guard requires DRAFT line creation before confirmation.
+update public.sales_orders
+set order_status='CONFIRMED'
+where id='b8500000-0000-0000-0000-000000000001';
 
 insert into public.inventory_movements (
   product_variant_id,movement_type,quantity_delta_base_units,reason

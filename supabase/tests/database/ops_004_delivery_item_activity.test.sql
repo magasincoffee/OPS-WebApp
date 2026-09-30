@@ -107,7 +107,7 @@ values (
   'a0600000-0000-0000-0000-000000000001',
   'SO-DELIVERY-ITEM-ACTIVITY-001',
   'a0200000-0000-0000-0000-000000000001',
-  'CONFIRMED',
+  'DRAFT',
   'a0100000-0000-0000-0000-000000000001',
   'OPS-004 delivery-item activity parent order'
 );
@@ -134,6 +134,11 @@ values (
   'PLAIN',
   'OPS-004 delivery-item activity source sales-order item'
 );
+
+-- OPS-031 requires order lines to be authored while DRAFT, then confirmed.
+update public.sales_orders
+set order_status = 'CONFIRMED'
+where id = 'a0600000-0000-0000-0000-000000000001';
 
 insert into public.deliveries (
   id,
