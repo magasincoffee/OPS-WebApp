@@ -31,12 +31,18 @@ set local request.jwt.claim.sub='fa100000-0000-0000-0000-000000000001';
 select is((select count(*) from public.task_assignee_directory()),4::bigint,'owner directory contains active non-owner operational assignees');
 
 select lives_ok(
- $$select public.create_operational_task(
+ $select public.create_operational_task(
    'WAREHOUSE_PREPARATION','SALES_ORDER','fa200000-0000-0000-0000-000000000001',
    'fa100000-0000-0000-0000-000000000002',
    timezone('utc',now())-interval '1 day','HIGH','Prepare order for issue'
- )$$,
+ )$,
  'owner creates assigned warehouse task'
+);
+
+select set_config(
+  'ops.test_task_id',
+  (select task_id::text from public.operational_task_queue where task_type='WAREHOUSE_PREPARATION'),
+  true
 );
 
 select results_eq(
@@ -67,10 +73,11 @@ set local request.jwt.claim.sub='fa100000-0000-0000-0000-000000000003';
 select is((select count(*) from public.operational_task_queue),0::bigint,'unassigned accounting user cannot see warehouse task');
 
 select throws_ok(
- $$select public.update_operational_task_execution(
-   (select task_id from public.operational_task_queue limit 1),'IN_PROGRESS','should not work'
- )$$,
- 'P0001','Operational task % does not exist or is not visible',
+ $select public.update_operational_task_execution(
+   current_setting('ops.test_task_id')::uuid,'IN_PROGRESS','should not work'
+ )$,
+ 'P0001',
+ 'Operational task '||current_setting('ops.test_task_id')||' does not exist or is not visible',
  'non-assignee cannot execute another user task'
 );
 

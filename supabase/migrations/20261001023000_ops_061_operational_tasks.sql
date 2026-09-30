@@ -46,6 +46,34 @@ begin
     return new;
   end if;
 
+  if new.status='DONE' then
+    new.completed_at:=coalesce(old.completed_at,new.completed_at,timezone('utc',now()));
+  else
+    new.completed_at:=null;
+  end if;
+
+  if v_user_id is not null and not v_is_owner then
+    if old.assignee_user_id is distinct from v_user_id then
+      raise exception 'User is not authorized to update this task' using errcode='42501';
+    end if;
+
+    if old.status in ('DONE','CANCELLED') then
+      raise exception 'Closed operational tasks are locked for assignees';
+    end if;
+
+    if new.id is distinct from old.id
+       or new.task_type is distinct from old.task_type
+       or new.linked_entity_type is distinct from old.linked_entity_type
+       or new.linked_entity_id is distinct from old.linked_entity_id
+       or new.assignee_user_id is distinct from old.assignee_user_id
+       or new.due_at is distinct from old.due_at
+       or new.priority is distinct from old.priority
+       or new.created_by_user_id is distinct from old.created_by_user_id
+       or new.created_at is distinct from old.created_at then
+      raise exception 'Task assignees may update only execution fields on their assigned tasks';
+    end if;
+  end if;
+
   if new.assignee_user_id is distinct from old.assignee_user_id and new.assignee_user_id is not null then
     select exists(
       select 1
@@ -61,34 +89,8 @@ begin
     end if;
   end if;
 
-  if new.status='DONE' then
-    new.completed_at:=coalesce(old.completed_at,new.completed_at,timezone('utc',now()));
-  else
-    new.completed_at:=null;
-  end if;
-
   if v_user_id is null or v_is_owner then
     return new;
-  end if;
-
-  if old.assignee_user_id is distinct from v_user_id then
-    raise exception 'User is not authorized to update this task' using errcode='42501';
-  end if;
-
-  if old.status in ('DONE','CANCELLED') then
-    raise exception 'Closed operational tasks are locked for assignees';
-  end if;
-
-  if new.id is distinct from old.id
-     or new.task_type is distinct from old.task_type
-     or new.linked_entity_type is distinct from old.linked_entity_type
-     or new.linked_entity_id is distinct from old.linked_entity_id
-     or new.assignee_user_id is distinct from old.assignee_user_id
-     or new.due_at is distinct from old.due_at
-     or new.priority is distinct from old.priority
-     or new.created_by_user_id is distinct from old.created_by_user_id
-     or new.created_at is distinct from old.created_at then
-    raise exception 'Task assignees may update only execution fields on their assigned tasks';
   end if;
 
   if new.status='CANCELLED' then
