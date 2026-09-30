@@ -164,7 +164,8 @@ insert into public.sales_order_items (
   unit_price_per_sale_unit,
   print_mode,
   print_color_count,
-  print_specification
+  print_specification,
+  requested_due_date
 )
 values (
   '96600000-0000-0000-0000-000000000001',
@@ -176,8 +177,14 @@ values (
   1000000,
   'PRINTED',
   2,
-  'Two-color Storage access test'
+  'Two-color Storage access test',
+  current_date + 1
 );
+
+-- OPS-032 requires the canonical DRAFT → line authoring → CONFIRMED branch before production.
+update public.sales_orders
+set order_status = 'CONFIRMED'
+where id = '96500000-0000-0000-0000-000000000001';
 
 insert into public.print_jobs (
   id,
