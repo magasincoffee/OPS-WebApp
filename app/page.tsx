@@ -18,6 +18,7 @@ export default function HomePage() {
           <Link href="/purchases" className="button button-secondary">Purchase Orders</Link>
           <Link href="/receipts" className="button button-secondary">Goods Receipts</Link>
           <Link href="/inventory" className="button button-secondary">Inventory</Link>
+          <Link href="/quotations" className="button button-secondary">Quotations</Link>
           <Link href="/login" className="button button-secondary">Đăng nhập</Link>
         </div>
       </section>

@@ -64,6 +64,10 @@ values (
   'Quotation Activity Customer'
 );
 
+-- OPS-030 routes production quotation writes through bounded RPCs.
+-- Restore table mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.quotations to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '97000000-0000-0000-0000-000000000001';
 
@@ -81,7 +85,7 @@ values (
 );
 
 update public.quotations
-set status = 'SENT'
+set notes = 'Updated quotation audit fixture'
 where id = '97200000-0000-0000-0000-000000000001';
 
 delete from public.quotations
@@ -119,11 +123,11 @@ select is(
     from public.activity_logs
     where linked_entity_id = '97200000-0000-0000-0000-000000000001'
       and action_type = 'QUOTATION_UPDATED'
-      and before_data ->> 'status' = 'DRAFT'
-      and after_data ->> 'status' = 'SENT'
+      and before_data ->> 'notes' is null
+      and after_data ->> 'notes' = 'Updated quotation audit fixture'
   ),
   1::bigint,
-  'quotation update captures before and after status snapshots'
+  'quotation update captures before and after snapshots'
 );
 
 select is(

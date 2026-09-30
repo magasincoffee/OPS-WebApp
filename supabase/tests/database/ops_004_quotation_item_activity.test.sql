@@ -99,6 +99,10 @@ values (
   '98000000-0000-0000-0000-000000000001'
 );
 
+-- OPS-030 routes production quotation-item writes through bounded RPCs.
+-- Restore table mutation only inside this rollback-only legacy audit fixture.
+grant insert, update, delete on public.quotation_items to authenticated;
+
 set local role authenticated;
 set local request.jwt.claim.sub = '98000000-0000-0000-0000-000000000001';
 
