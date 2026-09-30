@@ -119,7 +119,7 @@ select throws_ok(
 );
 select throws_ok(
  $$update public.print_jobs set assignee_user_id='f2100000-0000-0000-0000-000000000002' where job_number='PJ-OPS040-001'$$,
- 'P0001','Print-job assignment is reserved for OPS-041','direct assignment blocked'
+ 'P0001','Print-job assignment is locked unless job is WAITING','assignment cannot change once production has progressed'
 );
 select is(
  (select count(*) from public.print_job_events where print_job_id=(select id from public.print_jobs where job_number='PJ-OPS040-001')),

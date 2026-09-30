@@ -24,6 +24,22 @@ export async function POST(request: Request) {
       return go(request, `/print-jobs/${id}?action=created`);
     }
 
+    if (operation === "assignment") {
+      const printJobId = String(form.get("print_job_id") ?? "").trim();
+      const assigneeValue = String(form.get("assignee_user_id") ?? "").trim();
+      const note = String(form.get("note") ?? "").trim();
+      if (!printJobId) return go(request, "/print-jobs?error=assignment");
+      await supabaseRestWithToken("rpc/assign_print_job", token, {
+        method: "POST",
+        body: JSON.stringify({
+          p_print_job_id: printJobId,
+          p_assignee_user_id: assigneeValue || null,
+          p_note: note || null,
+        }),
+      });
+      return go(request, "/print-jobs/" + printJobId + "?action=assignment");
+    }
+
     if (operation === "status") {
       const printJobId = String(form.get("print_job_id") ?? "").trim();
       const status = String(form.get("status") ?? "").trim().toUpperCase();
