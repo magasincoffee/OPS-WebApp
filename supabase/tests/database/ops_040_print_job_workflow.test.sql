@@ -71,21 +71,21 @@ select throws_ok(
  'P0001','Sales-order item already has an active print job','one active job per printed line'
 );
 select lives_ok(
- $select public.create_print_job_from_requirement('PJ-OPS040-002','f2600000-0000-0000-0000-000000000002','second job')$,
+ $$select public.create_print_job_from_requirement('PJ-OPS040-002','f2600000-0000-0000-0000-000000000002','second job')$$,
  'materialize second print job'
 );
 select lives_ok(
- $select public.assign_print_job(
+ $$select public.assign_print_job(
    (select id from public.print_jobs where job_number='PJ-OPS040-001'),
    'f2100000-0000-0000-0000-000000000001','OPS-040 regression assignment'
- )$,
+ )$$,
  'assign first job before production lifecycle'
 );
 select lives_ok(
- $select public.assign_print_job(
+ $$select public.assign_print_job(
    (select id from public.print_jobs where job_number='PJ-OPS040-002'),
    'f2100000-0000-0000-0000-000000000001','OPS-040 regression assignment'
- )$,
+ )$$,
  'assign second job before production lifecycle'
 );
 select is((select count(*) from public.print_job_requirement_queue()),0::bigint,'all requirements covered');

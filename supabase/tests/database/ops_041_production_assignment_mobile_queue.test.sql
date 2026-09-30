@@ -61,14 +61,14 @@ select lives_ok(
   'create first WAITING job'
 );
 select lives_ok(
-  $select public.create_print_job_from_requirement('PJ-OPS041-002','f3600000-0000-0000-0000-000000000002','assignment validation job')$,
+  $$select public.create_print_job_from_requirement('PJ-OPS041-002','f3600000-0000-0000-0000-000000000002','assignment validation job')$$,
   'create second WAITING job'
 );
 
 select throws_ok(
-  $update public.print_jobs
+  $$update public.print_jobs
     set assignee_user_id='f3100000-0000-0000-0000-000000000002'
-    where job_number='PJ-OPS041-002'$,
+    where job_number='PJ-OPS041-002'$$,
   'P0001','Print-job assignment changes must use assign_print_job',
   'direct WAITING assignment cannot bypass assignment history RPC'
 );
