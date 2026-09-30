@@ -157,7 +157,7 @@ begin
   end if;
 
   if source_print_mode <> 'PRINTED' then
-    raise exception 'Plain/no-print sales-order item % cannot generate a print job', new.sales_order_item_id;
+    raise exception 'Plain/no-print sales-order item cannot generate a print job';
   end if;
 
   if source_print_status not in ('WAITING','IN_PROGRESS','WAITING_QC') then

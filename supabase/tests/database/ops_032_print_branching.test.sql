@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(27);
+select plan(29);
 
 select results_eq(
   $$select count(*)::bigint from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname='sales_order_print_requirements' and c.reloptions @> array['security_invoker=true']$$,
@@ -121,7 +121,7 @@ select throws_ok(
     from public.sales_orders so join public.sales_order_items soi on soi.sales_order_id=so.id
     where so.order_number='SO-OPS032-PLAIN'$$,
   'P0001',
-  'Plain/no-print sales-order item % cannot generate a print job',
+  'Plain/no-print sales-order item cannot generate a print job',
   'plain/no-print item can never generate a print job'
 );
 
