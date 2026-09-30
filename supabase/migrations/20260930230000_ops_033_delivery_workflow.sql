@@ -326,7 +326,7 @@ language plpgsql
 stable
 security definer
 set search_path = pg_catalog, pg_temp
-as $
+as $$
 declare
   v_user_id uuid:=(select auth.uid());
 begin
@@ -350,7 +350,7 @@ begin
   where p_delivery_id is null or d.id=p_delivery_id
   order by d.created_at desc,d.id desc;
 end;
-$;
+$$;
 revoke all on function public.delivery_tracking(uuid) from public,anon;
 grant execute on function public.delivery_tracking(uuid) to authenticated,service_role;
 
