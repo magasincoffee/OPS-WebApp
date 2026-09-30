@@ -188,7 +188,7 @@ select lives_ok(
 );
 
 select is(
- (select payment_status from public.sales_orders where id='f6500000-0000-0000-000000000001'),
+ (select payment_status from public.sales_orders where id='f6500000-0000-0000-0000-000000000001'),
  'RECEIVABLE',
  'voided payment reopens delivered outstanding amount as RECEIVABLE'
 );
