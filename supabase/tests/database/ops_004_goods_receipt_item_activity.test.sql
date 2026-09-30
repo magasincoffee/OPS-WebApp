@@ -128,6 +128,27 @@ values (
   'OPS-004 goods-receipt-item activity test purchase-order item'
 );
 
+insert into public.purchase_payments (
+  id,
+  purchase_order_id,
+  amount,
+  payment_date,
+  payment_method,
+  reference,
+  created_by_user_id,
+  notes
+)
+values (
+  '99700000-0000-0000-0000-000000000002',
+  '99600000-0000-0000-0000-000000000001',
+  6000000,
+  current_date,
+  'BANK_TRANSFER',
+  'GRI-ACTIVITY-PAYMENT-001',
+  '99100000-0000-0000-0000-000000000001',
+  'OPS-004 fixture updated for OPS-021 payment-before-receipt invariant'
+);
+
 insert into public.goods_receipts (
   id,
   goods_receipt_number,
