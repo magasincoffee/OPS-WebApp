@@ -15,6 +15,7 @@ type Reservation={sales_order_item_id:string};
 type DeliveryQueue={sales_order_id:string};
 type PrintJob={print_job_id:string;status:string;qc_state:string};
 type ProductionJob={print_job_id:string;status:string;qc_state:string};
+type OperationalTask={task_id:string;status:string;is_overdue:boolean};
 
 function countOpenOrders(rows:SalesOrder[]){
   return rows.filter(row=>!["COMPLETED","CANCELLED"].includes(row.order_status)).length;
@@ -54,9 +55,15 @@ export default async function HomePage(){
   let deliveryQueue:DeliveryQueue[]=[];
   let ownerPrintJobs:PrintJob[]=[];
   let myProductionJobs:ProductionJob[]=[];
+  let operationalTasks:OperationalTask[]=[];
 
   try{
     const requests:Promise<void>[]=[];
+    if(roles.size>0){
+      requests.push((async()=>{
+        operationalTasks=await supabaseRest<OperationalTask[]>("operational_task_queue?select=task_id,status,is_overdue&limit=5000");
+      })());
+    }
 
     if(canSales){
       requests.push((async()=>{
@@ -125,6 +132,9 @@ export default async function HomePage(){
   const activePrintJobs=ownerPrintJobs.filter(row=>!["COMPLETED","CANCELLED"].includes(row.status)).length;
   const waitingQc=ownerPrintJobs.filter(row=>row.status==="WAITING_QC").length;
   const myWaitingQc=myProductionJobs.filter(row=>row.status==="WAITING_QC").length;
+  const activeOperationalTasks=operationalTasks.filter(row=>!["DONE","CANCELLED"].includes(row.status));
+  const overdueOperationalTasks=activeOperationalTasks.filter(row=>row.is_overdue);
+  const blockedOperationalTasks=activeOperationalTasks.filter(row=>row.status==="BLOCKED");
   const roleLabels=[
     isOwner?"OWNER / ADMIN":null,
     isSales?"SALES":null,
@@ -146,6 +156,15 @@ export default async function HomePage(){
     </header>
 
     {roles.size===0?<section className="content-card"><p className="permission-note">Tài khoản đã đăng nhập nhưng chưa được gán vai trò vận hành. Liên hệ OWNER/ADMIN để được cấp quyền.</p></section>:null}
+
+    {roles.size>0?<section className="content-card">
+      <div className="section-heading"><div><p className="eyebrow">OPS-061</p><h2>Operational Tasks</h2><p className="muted">{isOwner?"All operational assignments":"Only tasks assigned to this account"}</p></div>{navLink("/tasks","Open task board",true)}</div>
+      <div className="metric-grid">
+        <article className="metric-card"><span>Active tasks</span><strong>{activeOperationalTasks.length}</strong></article>
+        <article className="metric-card"><span>Overdue</span><strong>{overdueOperationalTasks.length}</strong></article>
+        <article className="metric-card"><span>Blocked</span><strong>{blockedOperationalTasks.length}</strong></article>
+      </div>
+    </section>:null}
 
     {canSales?<section className="content-card">
       <div className="section-heading"><div><p className="eyebrow">SALES</p><h2>Customer & sales flow</h2><p className="muted">Customer, quotation, order, delivery tracking và receivable follow-up theo quyền SALES.</p></div></div>
