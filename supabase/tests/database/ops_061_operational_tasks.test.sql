@@ -31,11 +31,11 @@ set local request.jwt.claim.sub='fa100000-0000-0000-0000-000000000001';
 select is((select count(*) from public.task_assignee_directory()),4::bigint,'owner directory contains active non-owner operational assignees');
 
 select lives_ok(
- $select public.create_operational_task(
-   'WAREHOUSE_PREPARATION','SALES_ORDER','fa200000-0000-0000-0000-000000000001',
-   'fa100000-0000-0000-0000-000000000002',
-   timezone('utc',now())-interval '1 day','HIGH','Prepare order for issue'
- )$,
+ 'select public.create_operational_task(
+   ''WAREHOUSE_PREPARATION'',''SALES_ORDER'',''fa200000-0000-0000-0000-000000000001'',
+   ''fa100000-0000-0000-0000-000000000002'',
+   timezone(''utc'',now())-interval ''1 day'',''HIGH'',''Prepare order for issue''
+ )',
  'owner creates assigned warehouse task'
 );
 
