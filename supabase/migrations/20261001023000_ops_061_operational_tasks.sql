@@ -126,7 +126,6 @@ select
   t.priority,
   t.notes,
   t.completed_at,
-  t.created_by_user_id,
   t.created_at,
   t.updated_at,
   case
@@ -135,7 +134,8 @@ select
       and t.due_at < timezone('utc',now())
       then true
     else false
-  end as is_overdue
+  end as is_overdue,
+  t.created_by_user_id
 from public.tasks t;
 
 revoke all on public.operational_task_queue from public,anon;
