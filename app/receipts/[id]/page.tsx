@@ -57,6 +57,12 @@ type Attachment = {
   created_at: string;
 };
 
+type InventoryMovement = {
+  id: string;
+  goods_receipt_item_id: string | null;
+  occurred_at: string;
+};
+
 type PageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
@@ -122,6 +128,17 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
     ),
   ]);
 
+  const postedMovements = canReceive && items.length > 0
+    ? await supabaseRest<InventoryMovement[]>(
+        `inventory_movements?movement_type=eq.GOODS_RECEIPT&goods_receipt_item_id=in.(${items.map((item) => item.id).join(",")})&select=id,goods_receipt_item_id,occurred_at&limit=1000`,
+      )
+    : [];
+
+  const postedItemIds = new Set(
+    postedMovements
+      .map((movement) => movement.goods_receipt_item_id)
+      .filter((value): value is string => Boolean(value)),
+  );
   const sourceByItem = new Map(sourceLines.map((line) => [line.purchase_order_item_id, line]));
   const po = sourceLines[0];
   const totalBase = items.reduce((sum, item) => sum + Number(item.base_quantity), 0);
@@ -155,7 +172,7 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
         <article className="metric-card"><span>Receipt lines</span><strong>{items.length}</strong></article>
         <article className="metric-card"><span>Base units received</span><strong className="metric-small">{num(totalBase)}</strong></article>
         <article className="metric-card"><span>PO payment ready</span><strong>{po?.payment_ready ? "YES" : "NO"}</strong></article>
-        <article className="metric-card"><span>Inventory posted</span><strong>OPS-022</strong></article>
+        <article className="metric-card"><span>Inventory posted</span><strong>{canReceive ? `${postedItemIds.size}/${items.length}` : "Restricted"}</strong></article>
       </section>
 
       <section className="dashboard-grid">
@@ -201,7 +218,7 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
         <h2>Received lines</h2>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>SKU</th><th>Product</th><th>Purchase unit</th><th>Package qty</th><th>Conversion</th><th>Base qty</th><th>Notes</th></tr></thead>
+            <thead><tr><th>SKU</th><th>Product</th><th>Purchase unit</th><th>Package qty</th><th>Conversion</th><th>Base qty</th><th>Notes</th><th>Inventory</th></tr></thead>
             <tbody>
               {items.map((item) => {
                 const source = sourceByItem.get(item.purchase_order_item_id);
@@ -214,10 +231,22 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
                     <td>1 {source?.purchase_unit ?? "unit"} = {num(item.units_per_purchase_unit)} base units</td>
                     <td>{num(item.base_quantity)}</td>
                     <td>{item.notes ?? "—"}</td>
+                    <td>
+                      {canReceive ? (
+                        postedItemIds.has(item.id) ? (
+                          <span className="status status-active">POSTED</span>
+                        ) : (
+                          <form action={`/api/inventory/receipts/${item.id}/post`} method="post">
+                            <input type="hidden" name="goods_receipt_id" value={receipt.id} />
+                            <button type="submit" className="button button-secondary">Post inventory</button>
+                          </form>
+                        )
+                      ) : "—"}
+                    </td>
                   </tr>
                 );
               })}
-              {items.length === 0 ? <tr><td colSpan={7} className="empty-state">Chưa ghi nhận received line.</td></tr> : null}
+              {items.length === 0 ? <tr><td colSpan={8} className="empty-state">Chưa ghi nhận received line.</td></tr> : null}
             </tbody>
           </table>
         </div>
@@ -243,7 +272,7 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
               <button type="submit" className="button button-primary">Ghi nhận line</button>
             </form>
 
-            {items.map((item) => {
+            {items.filter((item) => !postedItemIds.has(item.id)).map((item) => {
               const source = sourceByItem.get(item.purchase_order_item_id);
               return (
                 <form action={`/api/receipts/items/${item.id}`} method="post" className="form-stack package-editor" key={`edit-${item.id}`}>
@@ -287,8 +316,8 @@ export default async function ReceiptDetailPage({ params, searchParams }: PagePr
       <section className="content-card">
         <h2>Workflow boundary</h2>
         <p className="muted">
-          OPS-021 ghi nhận hàng thực nhận và tự cập nhật actual receipt date của PO.
-          Việc tạo immutable GOODS_RECEIPT inventory movements, stock snapshot và cost-history posting thuộc OPS-022.
+          OPS-022 post từng received line đúng một lần vào immutable inventory ledger; stock snapshot được dẫn xuất từ ledger và cost history được append tự động.
+          Reservation/release/issue thuộc OPS-023; stocktake/adjustment/low-stock thuộc OPS-024.
         </p>
       </section>
     </main>

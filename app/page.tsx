@@ -8,7 +8,7 @@ export default function HomePage() {
         <h1>Operations WebApp</h1>
         <p>
           Hệ thống vận hành độc lập cho khách hàng, nhà cung cấp, sản phẩm, giá
-          vốn, mua hàng, nhận hàng, bán hàng, sản xuất, kho và tài chính.
+          vốn, mua hàng, nhận hàng, kho, bán hàng, sản xuất và tài chính.
         </p>
         <div className="hero-actions">
           <Link href="/customers" className="button button-primary">Khách hàng</Link>
@@ -17,6 +17,7 @@ export default function HomePage() {
           <Link href="/costing" className="button button-secondary">Giá vốn &amp; Pricing</Link>
           <Link href="/purchases" className="button button-secondary">Purchase Orders</Link>
           <Link href="/receipts" className="button button-secondary">Goods Receipts</Link>
+          <Link href="/inventory" className="button button-secondary">Inventory</Link>
           <Link href="/login" className="button button-secondary">Đăng nhập</Link>
         </div>
       </section>
