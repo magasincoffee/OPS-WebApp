@@ -6,7 +6,7 @@ import { SupabaseRestError, supabaseRest } from "@/lib/supabase/rest";
 type Job={print_job_id:string;job_number:string;order_number:string;customer_name:string;sku_code:string;product_name:string;product_type_snapshot:string|null;quantity_base_units:number;print_color_count:number;print_specification:string|null;artwork_reference:string|null;due_date:string;assignee_user_id:string|null;status:string;qc_state:string;accepted_at:string|null;started_at:string|null;notes:string|null;};
 type PageProps={params:Promise<{id:string}>;searchParams:Promise<{action?:string;error?:string}>};
 
-function day(value:string){return new Intl.DateTimeFormat("vi-VN",{dateStyle:"short"}).format(new Date(\`\${value}T00:00:00\`));}
+function day(value:string){return new Intl.DateTimeFormat("vi-VN",{dateStyle:"short"}).format(new Date(`${value}T00:00:00`));}
 function qty(value:number){return new Intl.NumberFormat("vi-VN",{maximumFractionDigits:6}).format(Number(value));}
 
 export default async function PrintJobDetailPage({params,searchParams}:PageProps){

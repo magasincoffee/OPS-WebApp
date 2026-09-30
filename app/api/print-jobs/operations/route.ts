@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         method: "POST",
         body: JSON.stringify({ p_job_number: jobNumber, p_sales_order_item_id: salesOrderItemId, p_notes: notes || null }),
       });
-      return go(request, \`/print-jobs/\${id}?action=created\`);
+      return go(request, `/print-jobs/${id}?action=created`);
     }
 
     if (operation === "status") {
@@ -33,13 +33,13 @@ export async function POST(request: Request) {
         method: "POST",
         body: JSON.stringify({ p_print_job_id: printJobId, p_status: status, p_note: note || null }),
       });
-      return go(request, \`/print-jobs/\${printJobId}?action=\${status.toLowerCase()}\`);
+      return go(request, `/print-jobs/${printJobId}?action=${status.toLowerCase()}`);
     }
 
     return go(request, "/print-jobs?error=operation");
   } catch (error) {
     if (error instanceof SupabaseRestError && error.status === 401) return go(request, "/login?error=session");
     const printJobId = String(form.get("print_job_id") ?? "").trim();
-    return go(request, printJobId ? \`/print-jobs/\${printJobId}?error=\${encodeURIComponent(operation || "operation")}\` : \`/print-jobs?error=\${encodeURIComponent(operation || "operation")}\`);
+    return go(request, printJobId ? `/print-jobs/${printJobId}?error=${encodeURIComponent(operation || "operation")}` : `/print-jobs?error=${encodeURIComponent(operation || "operation")}`);
   }
 }

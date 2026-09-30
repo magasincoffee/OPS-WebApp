@@ -126,8 +126,8 @@ select throws_ok(
 );
 
 select lives_ok(
-  $$insert into public.print_jobs(job_number,sales_order_id,sales_order_item_id,customer_id,product_variant_id,product_type_snapshot,quantity_base_units,print_color_count,print_specification,due_date)
-    select 'PJ-OPS032-CONFIRMED',so.id,soi.id,so.customer_id,soi.product_variant_id,'CUP',soi.base_quantity,soi.print_color_count,soi.print_specification,current_date+5
+  $$insert into public.print_jobs(job_number,sales_order_id,sales_order_item_id,customer_id,product_variant_id,product_type_snapshot,quantity_base_units,print_color_count,print_specification,artwork_reference,due_date)
+    select 'PJ-OPS032-CONFIRMED',so.id,soi.id,so.customer_id,soi.product_variant_id,'CUP',soi.base_quantity,soi.print_color_count,soi.print_specification,soi.artwork_reference,current_date+5
     from public.sales_orders so join public.sales_order_items soi on soi.sales_order_id=so.id
     where so.order_number='SO-OPS032-PRINTED'$$,
   'confirmed printed source remains eligible for OPS-040 job materialization'

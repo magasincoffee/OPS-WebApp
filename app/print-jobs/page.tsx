@@ -7,7 +7,7 @@ type Requirement = { sales_order_item_id:string; order_number:string; customer_n
 type Job = { print_job_id:string; job_number:string; order_number:string; customer_name:string; sku_code:string; product_name:string; quantity_base_units:number; print_color_count:number; due_date:string; status:string; qc_state:string; };
 type PageProps = { searchParams: Promise<{ error?: string }> };
 
-function day(value:string){return new Intl.DateTimeFormat("vi-VN",{dateStyle:"short"}).format(new Date(\`\${value}T00:00:00\`));}
+function day(value:string){return new Intl.DateTimeFormat("vi-VN",{dateStyle:"short"}).format(new Date(`${value}T00:00:00`));}
 function qty(value:number){return new Intl.NumberFormat("vi-VN",{maximumFractionDigits:6}).format(Number(value));}
 
 export default async function PrintJobsPage({searchParams}:PageProps){
@@ -31,7 +31,7 @@ export default async function PrintJobsPage({searchParams}:PageProps){
     {state.error?<section className="content-card"><p className="permission-note">Không thể hoàn tất print-job action ({state.error}).</p></section>:null}
 
     <section className="content-card"><h2>Production tracking</h2><div className="table-wrap"><table><thead><tr><th>Job</th><th>Order / Customer</th><th>SKU</th><th>Qty / Colors</th><th>Due</th><th>Status</th></tr></thead><tbody>
-      {jobs.map(job=><tr key={job.print_job_id}><td><Link href={\`/print-jobs/\${job.print_job_id}\`}><strong>{job.job_number}</strong></Link></td><td>{job.order_number}<div className="subtle">{job.customer_name}</div></td><td>{job.sku_code}<div className="subtle">{job.product_name}</div></td><td>{qty(job.quantity_base_units)}<div className="subtle">{job.print_color_count} color(s)</div></td><td>{day(job.due_date)}</td><td><strong>{job.status}</strong><div className="subtle">QC {job.qc_state}</div></td></tr>)}
+      {jobs.map(job=><tr key={job.print_job_id}><td><Link href={`/print-jobs/${job.print_job_id}`}><strong>{job.job_number}</strong></Link></td><td>{job.order_number}<div className="subtle">{job.customer_name}</div></td><td>{job.sku_code}<div className="subtle">{job.product_name}</div></td><td>{qty(job.quantity_base_units)}<div className="subtle">{job.print_color_count} color(s)</div></td><td>{day(job.due_date)}</td><td><strong>{job.status}</strong><div className="subtle">QC {job.qc_state}</div></td></tr>)}
       {jobs.length===0?<tr><td colSpan={6} className="empty-state">{isProduction?"Chưa có job được assignment cho tài khoản này.":"Chưa có print job."}</td></tr>:null}
     </tbody></table></div></section>
 

@@ -182,6 +182,35 @@ values (
 );
 
 -- OPS-032 requires the canonical DRAFT → line authoring → CONFIRMED branch before production.
+
+insert into public.sales_order_items (
+  id,
+  sales_order_id,
+  product_variant_id,
+  sale_unit,
+  sale_quantity,
+  units_per_sale_unit,
+  unit_price_per_sale_unit,
+  print_mode,
+  print_color_count,
+  print_specification,
+  requested_due_date
+)
+select
+  '96600000-0000-0000-0000-000000000002'::uuid,
+  sales_order_id,
+  product_variant_id,
+  sale_unit,
+  sale_quantity,
+  units_per_sale_unit,
+  unit_price_per_sale_unit,
+  print_mode,
+  print_color_count,
+  print_specification,
+  requested_due_date
+from public.sales_order_items
+where id = '96600000-0000-0000-0000-000000000001';
+
 update public.sales_orders
 set order_status = 'CONFIRMED'
 where id = '96500000-0000-0000-0000-000000000001';
@@ -212,7 +241,7 @@ values
     'CUP',
     1000,
     2,
-    'Assigned Storage print job',
+    'Two-color Storage access test',
     current_date + 1,
     '96000000-0000-0000-0000-000000000002',
     '96000000-0000-0000-0000-000000000001'
@@ -221,13 +250,13 @@ values
     '96700000-0000-0000-0000-000000000002',
     'PJ-STORAGE-UNASSIGNED',
     '96500000-0000-0000-0000-000000000001',
-    '96600000-0000-0000-0000-000000000001',
+    '96600000-0000-0000-0000-000000000002',
     '96100000-0000-0000-0000-000000000001',
     '96400000-0000-0000-0000-000000000001',
     'CUP',
     1000,
     2,
-    'Unassigned Storage print job',
+    'Two-color Storage access test',
     current_date + 1,
     '96000000-0000-0000-0000-000000000001',
     '96000000-0000-0000-0000-000000000001'
