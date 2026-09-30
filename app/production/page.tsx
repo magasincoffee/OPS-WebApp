@@ -44,7 +44,7 @@ export default async function ProductionMobileQueuePage(){
 
   return <main className="app-shell">
     <header className="topbar">
-      <div><p className="eyebrow">OPS-WEBAPP · OPS-041 · MOBILE</p><h1>My Production Queue</h1><p className="muted">Chỉ hiển thị print jobs được assign cho tài khoản hiện tại. Không có giá bán, cost, margin hoặc công nợ.</p></div>
+      <div><p className="eyebrow">OPS-WEBAPP · OPS-042 · MOBILE</p><h1>My Production Queue</h1><p className="muted">Chỉ hiển thị active print jobs được assign cho tài khoản hiện tại. QC evidence/completion thực hiện từ trang chi tiết. Không có giá bán, cost, margin hoặc công nợ.</p></div>
       <div className="hero-actions"><Link href="/print-jobs" className="button button-secondary">Print Jobs</Link><Link href="/" className="button button-secondary">Trang chủ</Link></div>
     </header>
 
@@ -63,7 +63,7 @@ export default async function ProductionMobileQueuePage(){
           <p><strong>Specification:</strong> {job.print_specification??"—"}</p>
           <p><strong>Artwork:</strong> {job.artwork_reference??"—"}</p>
           {job.notes?<p><strong>Notes:</strong> {job.notes}</p>:null}
-          {nextStatus?<form action="/api/print-jobs/operations" method="post" className="form-stack"><input type="hidden" name="operation" value="status"/><input type="hidden" name="print_job_id" value={job.print_job_id}/><input type="hidden" name="status" value={nextStatus}/><input name="note" placeholder="Work note"/><button type="submit" className="button button-primary">{nextStatus==="ACCEPTED"?"Accept job":nextStatus==="IN_PROGRESS"?"Start production":"Send to QC"}</button></form>:<p className="permission-note">Đang chờ QC — completion thuộc OPS-042.</p>}
+          {nextStatus?<form action="/api/print-jobs/operations" method="post" className="form-stack"><input type="hidden" name="operation" value="status"/><input type="hidden" name="print_job_id" value={job.print_job_id}/><input type="hidden" name="status" value={nextStatus}/><input name="note" placeholder="Work note"/><button type="submit" className="button button-primary">{nextStatus==="ACCEPTED"?"Accept job":nextStatus==="IN_PROGRESS"?"Start production":"Send to QC"}</button></form>:<p className="permission-note">Đang chờ QC — mở Chi tiết để upload evidence và PASS/FAIL.</p>}
         </article>;
       })}
     </section>

@@ -40,6 +40,24 @@ export async function POST(request: Request) {
       return go(request, "/print-jobs/" + printJobId + "?action=assignment");
     }
 
+    if (operation === "qc") {
+      const printJobId = String(form.get("print_job_id") ?? "").trim();
+      const result = String(form.get("qc_result") ?? "").trim().toUpperCase();
+      const evidenceAttachmentId = String(form.get("evidence_attachment_id") ?? "").trim();
+      const note = String(form.get("note") ?? "").trim();
+      if (!printJobId || !result || !evidenceAttachmentId) return go(request, "/print-jobs?error=qc");
+      await supabaseRestWithToken("rpc/submit_print_job_qc", token, {
+        method: "POST",
+        body: JSON.stringify({
+          p_print_job_id: printJobId,
+          p_result: result,
+          p_evidence_attachment_id: evidenceAttachmentId,
+          p_note: note || null,
+        }),
+      });
+      return go(request, "/print-jobs/" + printJobId + "?action=qc-" + result.toLowerCase());
+    }
+
     if (operation === "status") {
       const printJobId = String(form.get("print_job_id") ?? "").trim();
       const status = String(form.get("status") ?? "").trim().toUpperCase();
