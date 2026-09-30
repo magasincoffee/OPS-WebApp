@@ -40,15 +40,15 @@ reset role;
 
 select results_eq(
 $$select so.order_status,so.customer_id,so.created_by_user_id,so.salesperson_user_id,q.status from public.sales_orders so join public.quotations q on q.id=so.source_quotation_id where so.order_number='SO-OPS031-CONVERTED'$$,
-$select * from (values('DRAFT'::text,'e0200000-0000-0000-0000-000000000001'::uuid,'e0100000-0000-0000-0000-000000000001'::uuid,'e0100000-0000-0000-0000-000000000001'::uuid,'CONVERTED'::text)) as expected(order_status,customer_id,created_by_user_id,salesperson_user_id,status)$,
+$$select * from (values('DRAFT'::text,'e0200000-0000-0000-0000-000000000001'::uuid,'e0100000-0000-0000-0000-000000000001'::uuid,'e0100000-0000-0000-0000-000000000001'::uuid,'CONVERTED'::text)) as expected(order_status,customer_id,created_by_user_id,salesperson_user_id,status)$$,
 'conversion preserves source and actor');
 select results_eq(
 $$select soi.sale_unit,soi.sale_quantity,soi.units_per_sale_unit,soi.base_quantity,soi.unit_price_per_sale_unit,soi.discount_amount,soi.line_total,soi.print_mode,soi.artwork_reference,soi.pricing_rule_id,soi.price_tier_id from public.sales_order_items soi join public.sales_orders so on so.id=soi.sales_order_id where so.order_number='SO-OPS031-CONVERTED'$$,
-$select * from (values('CARTON'::text,2::numeric,1000::numeric,2000::numeric,2500::numeric,100::numeric,4900::numeric,'PLAIN'::text,'ART-031'::text,'e0600000-0000-0000-0000-000000000001'::uuid,'e0700000-0000-0000-0000-000000000001'::uuid)) as expected(sale_unit,sale_quantity,units_per_sale_unit,base_quantity,unit_price_per_sale_unit,discount_amount,line_total,print_mode,artwork_reference,pricing_rule_id,price_tier_id)$,
+$$select * from (values('CARTON'::text,2::numeric,1000::numeric,2000::numeric,2500::numeric,100::numeric,4900::numeric,'PLAIN'::text,'ART-031'::text,'e0600000-0000-0000-0000-000000000001'::uuid,'e0700000-0000-0000-0000-000000000001'::uuid)) as expected(sale_unit,sale_quantity,units_per_sale_unit,base_quantity,unit_price_per_sale_unit,discount_amount,line_total,print_mode,artwork_reference,pricing_rule_id,price_tier_id)$$,
 'conversion copies line snapshots without re-entry');
 select results_eq(
 $$select sot.subtotal_amount,sot.discount_amount,sot.total_amount,sot.currency_code from public.sales_order_totals sot join public.sales_orders so on so.id=sot.sales_order_id where so.order_number='SO-OPS031-CONVERTED'$$,
-$select * from (values(5000::numeric,100::numeric,4900::numeric,'VND'::text)) as expected(subtotal_amount,discount_amount,total_amount,currency_code)$,'converted totals derive correctly');
+$$select * from (values(5000::numeric,100::numeric,4900::numeric,'VND'::text)) as expected(subtotal_amount,discount_amount,total_amount,currency_code)$$,'converted totals derive correctly');
 
 set local role authenticated;
 set local request.jwt.claim.sub='e0100000-0000-0000-0000-000000000001';

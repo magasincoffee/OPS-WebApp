@@ -305,7 +305,7 @@ select throws_ok(
     where id='b8600000-0000-0000-0000-000000000001'
   $$,
   'P0001',
-  'Cannot change SKU or quantity fields after inventory activity exists',
+  'Sales-order items are editable only while the order is DRAFT',
   'inventory-linked sales-order quantity fields are immutable'
 );
 
