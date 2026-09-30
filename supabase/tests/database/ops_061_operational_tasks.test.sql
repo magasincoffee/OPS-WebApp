@@ -73,9 +73,9 @@ set local request.jwt.claim.sub='fa100000-0000-0000-0000-000000000003';
 select is((select count(*) from public.operational_task_queue),0::bigint,'unassigned accounting user cannot see warehouse task');
 
 select throws_ok(
- $select public.update_operational_task_execution(
-   current_setting('ops.test_task_id')::uuid,'IN_PROGRESS','should not work'
- )$,
+ 'select public.update_operational_task_execution('''
+   || current_setting('ops.test_task_id')
+   || '''::uuid,''IN_PROGRESS'',''should not work'')',
  'P0001',
  'Operational task '||current_setting('ops.test_task_id')||' does not exist or is not visible',
  'non-assignee cannot execute another user task'
