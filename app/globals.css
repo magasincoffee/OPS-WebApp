@@ -379,3 +379,41 @@ th {
     width: 100%;
   }
 }
+
+
+.inline-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.6fr) minmax(240px, 1.4fr);
+  gap: 8px;
+  flex: 1;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.package-editor {
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.content-card h3 {
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .inline-fields,
+  .inline-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .stack-item {
+    display: grid;
+  }
+}
