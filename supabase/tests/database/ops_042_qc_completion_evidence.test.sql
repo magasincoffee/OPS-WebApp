@@ -47,7 +47,7 @@ select lives_ok(
  'owner materializes print job'
 );
 select lives_ok(
- $select public.assign_print_job((select id from public.print_jobs where job_number='PJ-OPS042-001'),'f4100000-0000-0000-0000-000000000002','assign QC printer')$,
+ $$select public.assign_print_job((select id from public.print_jobs where job_number='PJ-OPS042-001'),'f4100000-0000-0000-0000-000000000002','assign QC printer')$$,
  'owner assigns production user'
 );
 
@@ -104,11 +104,11 @@ set local role authenticated;
 set local request.jwt.claim.sub='f4100000-0000-0000-0000-000000000003';
 
 select throws_ok(
- $select public.create_print_job_evidence_attachment(
+ $$select public.create_print_job_evidence_attachment(
    current_setting('ops.test_print_job_id')::uuid,
    'print-jobs/'||current_setting('ops.test_print_job_id')||'/other.jpg',
    'other.jpg','image/jpeg',50
- )$,
+ )$$,
  'P0001',
  'Print job '||current_setting('ops.test_print_job_id')||' does not exist or is not visible',
  'unassigned production user cannot add QC evidence'
