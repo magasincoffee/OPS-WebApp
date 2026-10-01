@@ -4,7 +4,7 @@
 **Architecture Generation:** 1  
 **Source of Truth:** `SOURCE_OF_TRUTH.md`  
 **Snapshot run:** `OPS071-20261001-A`  
-**Status:** BLOCKED on Owner payment-history decisions
+**Status:** DONE — Owner-approved migration-exception treatment recorded 2026-10-01
 
 ## Scope executed
 
@@ -94,15 +94,22 @@ Overpayment order groups:
 
 Because the source period report validates the raw payment totals, these rows must not simply be dropped or truncated to satisfy the target constraint; doing so would alter authoritative source receivable totals.
 
-## Owner input required to unblock OPS-072
+## Owner decision — authoritative migration-exception treatment
 
-Owner must provide/confirm the authoritative treatment for:
+Owner decision recorded 2026-10-01:
 
-- the 13 undated historical payment rows: actual payment date, or an explicit approved migration-date policy;
-- the one payment with no usable amount (`DH-27082026-002`): authoritative amount/treatment; and
-- the 8 overpayment order groups: which source payment rows are valid, duplicated/superseded, corrected, or should be reassigned.
+> Tất cả các dữ liệu chưa xác định ở trên giữ lại trong migration exception, không import vào payment chính; tôi sẽ xử lý sau trên WebApp.
 
-No guessed dates, truncated payments, hidden reallocations, synthetic credits, or fabricated historical payment methods were applied.
+Authoritative implementation meaning:
+
+- the 13 undated historical payment rows remain preserved as migration exceptions and are not inserted into `customer_payments` until the Owner supplies valid payment dates;
+- the payment associated with `DH-27082026-002` that has no usable amount remains a migration exception and is not inserted into `customer_payments` until the Owner supplies a valid amount/treatment;
+- payment rows implicated in the 8 overpayment order groups remain migration exceptions where they cannot be represented without violating current OPS payment invariants; no amount is truncated, silently reassigned, or fabricated;
+- the preserved source/quarantine provenance remains the audit source for later Owner resolution;
+- after production deployment, the Owner may resolve an exception by creating a valid payment through the normal WebApp payment workflow once the correct historical facts are known;
+- affected order/customer receivable figures are non-authoritative until their migration exceptions are resolved. They must not be presented as fully reconciled historical receivables in any cutover sign-off while unresolved.
+
+No guessed dates, truncated payments, hidden reallocations, synthetic credits, or fabricated historical payment methods are applied.
 
 ## Verification
 
@@ -117,4 +124,4 @@ Real-snapshot reconciliation passed every non-ambiguous control above:
 - inventory: 69/69 SKU closing balances reconciled;
 - opening inventory: no non-zero opening movement required.
 
-OPS-072 remains blocked solely on the documented Owner payment-history decisions.
+OPS-072 is complete under the Owner-approved migration-exception policy above. The unresolved historical payment facts remain preserved as explicit post-deployment Owner exceptions rather than being fabricated or forced into the transactional payment ledger.
