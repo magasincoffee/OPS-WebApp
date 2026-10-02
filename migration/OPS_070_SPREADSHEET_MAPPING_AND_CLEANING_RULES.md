@@ -6,6 +6,8 @@
 **Status:** LOCKED for OPS-071 implementation  
 **Captured:** 2026-10-01
 
+> **Public repository copy:** exact Drive/source identifiers are intentionally redacted. Private migration evidence remains outside the public Git tree.
+
 This document is the durable migration contract for the two spreadsheet sources named by the SOT. It defines what is authoritative, how legacy rows map into the OPS schema, which rows require review or quarantine, and which derived/template sheets must not be imported as runtime truth.
 
 It does **not** execute data migration. SQL/ETL/load implementation belongs to OPS-071. Opening-balance reconciliation belongs to OPS-072. Final production cutover belongs to OPS-075.
@@ -16,10 +18,10 @@ The SOT names the migration inputs as `*SỔ THU - CHI.xlsx` and `*BẢNG GIÁ V
 
 | SOT source | Resolved live source | Drive ID | Last modified (Drive) | Migration use |
 | --- | --- | --- | --- | --- |
-| `*SỔ THU - CHI.xlsx` | `*SỔ THU - CHI` | `1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ` | 2026-09-30T09:15:20.915Z | customers, sales orders, receipts/payments, purchasing/receipts, inventory events, delivery-related legacy context |
-| `*BẢNG GIÁ VỐN.xlsx` | `*BẢNG GIÁ VỐN` | `1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y` | 2026-09-30T08:48:18.726Z | product/SKU master, package conversion, cost history inputs, selling-price tiers |
+| `*SỔ THU - CHI.xlsx` | `*SỔ THU - CHI` | `<PRIVATE_SOURCE_REF_THU_CHI>` | 2026-09-30T09:15:20.915Z | customers, sales orders, receipts/payments, purchasing/receipts, inventory events, delivery-related legacy context |
+| `*BẢNG GIÁ VỐN.xlsx` | `*BẢNG GIÁ VỐN` | `<PRIVATE_SOURCE_REF_GIA_VON>` | 2026-09-30T08:48:18.726Z | product/SKU master, package conversion, cost history inputs, selling-price tiers |
 
-A second older Drive file with the same `*BẢNG GIÁ VỐN` title exists, but it was last modified in 2025. It is **not** selected for V1 migration because the current `SẢN PHẨM` tab in `*SỔ THU - CHI` explicitly imports from Drive ID `1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y`, establishing the current cross-workbook dependency.
+A second older Drive file with the same `*BẢNG GIÁ VỐN` title exists, but it was last modified in 2025. It is **not** selected for V1 migration because the current `SẢN PHẨM` tab in `*SỔ THU - CHI` explicitly imports from Drive ID `<PRIVATE_SOURCE_REF_GIA_VON>`, establishing the current cross-workbook dependency.
 
 ### Read-only source rule
 
@@ -95,8 +97,8 @@ Every staged row must carry a stable source reference:
 
 Examples:
 
-- `gdrive:1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ/ĐƠN HÀNG/R2`
-- `gdrive:1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y/BẢNG BÁO GIÁ/R10`
+- `gdrive:<PRIVATE_SOURCE_REF_THU_CHI>/ĐƠN HÀNG/R2`
+- `gdrive:<PRIVATE_SOURCE_REF_GIA_VON>/BẢNG BÁO GIÁ/R10`
 
 When one source row creates multiple target rows, all target/staging records retain the same source reference plus a deterministic component suffix such as `#order`, `#item`, `#packaging`, `#cost`, or `#tier-1000`.
 

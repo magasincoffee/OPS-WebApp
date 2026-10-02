@@ -1,102 +1,33 @@
-# OPS-071 — Migration Scripts Dry-Run Report
+# OPS-071 — Migration Scripts Dry-Run Report (Public Summary)
 
 **Run:** `OPS071-20261001-A`  
 **Architecture Generation:** 1  
 **Source of Truth:** `SOURCE_OF_TRUTH.md`  
-**Input contract:** `migration/OPS_070_SPREADSHEET_MAPPING_AND_CLEANING_RULES.md`
+**Status:** VERIFIED
 
-## Snapshot identity
+This public copy intentionally excludes exact Drive/source identifiers, snapshot identifiers/hashes, operational row volumes, customer/supplier data, and detailed source controls. Those artifacts are private migration evidence and must not be committed to the public repository.
 
-- `thu_chi`: source `1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ`, modified `2026-09-30T09:15:20.915Z`, `537801` bytes, SHA-256 `cd4654a3f73b4948f7ab42200fdd5414e37e910c460a2bf5a7d1fa8b49a3d355`.
-- `gia_von`: source `1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y`, modified `2026-09-30T08:48:18.726Z`, `387275` bytes, SHA-256 `b7dff499f94cac04984b51b4cd22889dfc6e1e751309ff63728c6331b75c5689`.
+## Public verification result
 
-Immutable XLSX copies were stored in Drive folder `OPS-WebApp Migration Snapshots` before extraction. Raw source workbooks were not modified.
+The deterministic OPS-071 staging run completed successfully against immutable private snapshots.
 
-## Dry-run accepted staging rows
+Verified invariants:
 
-| Entity | Accepted rows |
-| --- | ---: |
-| `customer_payments` | 188 |
-| `customers` | 115 |
-| `goods_receipt_items` | 21 |
-| `goods_receipts` | 8 |
-| `opening_inventory_candidates` | 1 |
-| `product_packaging` | 256 |
-| `product_variants` | 323 |
-| `products` | 323 |
-| `purchase_cost_history` | 198 |
-| `purchase_order_items` | 12 |
-| `purchase_orders` | 16 |
-| `sales_order_items` | 648 |
-| `sales_orders` | 294 |
-| `suppliers` | 4 |
+- every accepted staged row retained source provenance;
+- opening inventory candidates were staged only and were not auto-loaded;
+- payment identity used source-row provenance rather than displayed receipt numbers;
+- ambiguous pricing blocks were quarantined rather than guessed;
+- quarantine reason codes were valid;
+- staged foreign-key references resolved;
+- accepted positive-value constraints passed;
+- generated target identifiers were unique.
 
-## Quarantine / review output
+## Review/quarantine policy
 
-Total review records: **901**. Every review record carries a `source_row_reference`; no quarantined record is silently discarded.
+Ambiguous customer, supplier, SKU, packaging, cost, pricing, order, purchase-order, receipt, payment, inventory, and spreadsheet-error rows are preserved as review/quarantine evidence. No ambiguous row is silently discarded or fabricated.
 
-| Reason | Count |
-| --- | ---: |
-| `REVIEW_COST_COMPONENTS` | 9 |
-| `REVIEW_CUSTOMER_CONFLICT` | 4 |
-| `REVIEW_DUPLICATE_SKU` | 34 |
-| `REVIEW_MISSING_SKU_MASTER` | 55 |
-| `REVIEW_MISSING_SKU_ORDER_LINE` | 9 |
-| `REVIEW_NEGATIVE_STOCK` | 1 |
-| `REVIEW_OPENING_BALANCE` | 1 |
-| `REVIEW_ORDER_CONFLICT` | 30 |
-| `REVIEW_ORPHAN_RECEIPT` | 32 |
-| `REVIEW_PACKAGING` | 67 |
-| `REVIEW_PAYMENT_LINK` | 152 |
-| `REVIEW_PO_CONFLICT` | 163 |
-| `REVIEW_PRICE_BLOCK` | 224 |
-| `REVIEW_SPREADSHEET_ERROR` | 120 |
-
-Important: quarantine counts are review records, not necessarily unique source rows; one source row may legitimately produce more than one review reason (for example a spreadsheet error plus an ambiguous price block).
-
-## Source controls
-
-| Sheet | Controls |
-| --- | --- |
-| `BẢNG BÁO GIÁ` | `business`=226 |
-| `COST NẮP` | `business`=120, `dedup_alias`=57 |
-| `COST PHỤ KIỆN` | `business`=34 |
-| `KHÁCH HÀNG` | `blank`=874, `business`=119 |
-| `LÊN ĐƠN NCC` | `business`=175 |
-| `NHẬP KHO` | `business`=109 |
-| `THU TIỀN` | `business`=340 |
-| `ĐIỀU CHỈNH KHO` | `business`=1 |
-| `ĐƠN HÀNG` | `business`=685 |
-
-## Legacy status inventory
-
-- `CHỜ GIAO`: 24
-- `CHỜ IN`: 22
-- `ĐÃ GIAO - CHƯA THU`: 5
-- `ĐÃ THU`: 632
-- `ĐÃ THU - CHỜ GIAO`: 2
-
-These labels are mapped to dimension-specific hints only; the migration tool never copies the legacy mixed status string into one target status dimension.
-
-## Verified invariants
-
-- `all_source_refs_present`: **true**
-- `opening_inventory_not_loaded`: **true**
-- `payment_identity_is_source_row_reference`: **true**
-- `pricing_blocks_not_guessed`: **true**
-- `quarantine_reason_codes_valid`: **true**
-
-Cross-entity validation passed: all accepted foreign-key references resolve within the staged output, accepted payments are positive, accepted order/purchase lines satisfy target positivity rules, accepted IDs are unique, and quarantine entries have reason + source reference.
-
-## Deliberate non-load decisions
-
-- Opening inventory / adjustment candidates remain staged for `OPS-072`; no negative opening quantity is clamped or auto-posted.
-- Duplicated/unlabeled spreadsheet pricing blocks are emitted as `REVIEW_PRICE_BLOCK`; the script does not guess plain/printed pricing contexts.
-- Purchase lines without authoritative unit cost remain `REVIEW_PO_CONFLICT` rather than receiving an inferred price.
-- Receipts that cannot link to exactly one migrated PO remain `REVIEW_ORPHAN_RECEIPT`; no synthetic PO is created silently.
-- Payments that cannot link to an accepted order or lack a valid amount/date/method remain `REVIEW_PAYMENT_LINK`.
-- Raw staging JSONL and quarantine rows are not committed to Git because they can contain customer/supplier operational data. They are reproducible from the immutable snapshots using `ops_071_stage.py`.
+Raw staging JSONL, quarantine output, spreadsheet snapshots, exact source identifiers, hashes, counts, and operational records are private evidence and are excluded from public Git.
 
 ## OPS-072 handoff
 
-`reconciliation_inputs.json`, accepted JSONL entities, `quarantine.jsonl`, and `status_values.json` are generated by the staging script from the immutable snapshots. `OPS-072` owns opening-balance acceptance and reconciliation of source totals/stock/receivables before any final cutover.
+OPS-072 consumed the private reconciliation inputs generated by the same deterministic run. Final migration/cutover remains governed by the SOT and OPS-075.

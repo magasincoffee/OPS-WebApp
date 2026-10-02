@@ -10,3 +10,19 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .DS_Store
+
+# Public-repository safety: operational/migration data must never be tracked.
+*.xlsx
+*.xls
+*.csv
+*.jsonl
+*.parquet
+*.sqlite
+*.db
+*.pem
+*.key
+migration/generated/
+migration/ops071_run/
+migration/private/
+private/
+secrets/

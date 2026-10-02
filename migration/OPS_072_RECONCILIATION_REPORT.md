@@ -1,127 +1,39 @@
-# OPS-072 — Reconciliation / Opening Balances
+# OPS-072 — Reconciliation / Opening Balances (Public Summary)
 
 **Task:** OPS-072  
 **Architecture Generation:** 1  
 **Source of Truth:** `SOURCE_OF_TRUTH.md`  
-**Snapshot run:** `OPS071-20261001-A`  
 **Status:** DONE — Owner-approved migration-exception treatment recorded 2026-10-01
 
-## Scope executed
+This public copy intentionally excludes exact source/snapshot identifiers, hashes, financial totals, customer/order/SKU identifiers, row-level exceptions, and other business-sensitive reconciliation evidence.
 
-OPS-072 was executed against the two immutable XLSX snapshots recorded by `migration/ops_071_snapshot_manifest.json`. The live Google Sheets were not modified and no production database write was performed.
+## Public verification result
 
-The reconciliation verified snapshot SHA-256 identity, source document money controls, stock/opening-balance logic, the selected legacy receivable checkpoint, the saved period report checkpoint, and payment-history conditions against the current OPS payment workflow.
+OPS-072 was executed against the immutable private OPS-071 snapshots.
 
-## Snapshot identity
+The following non-ambiguous controls passed:
 
-Both XLSX SHA-256 values match the committed OPS-071 snapshot manifest exactly:
+- snapshot identity verification;
+- sales document/line reconciliation;
+- purchasing document/line reconciliation;
+- goods-receipt document/line reconciliation;
+- saved-period control reconciliation;
+- selected receivable checkpoint reconciliation;
+- inventory closing-balance reconciliation for all in-scope SKU rows.
 
-- `thu_chi`: `cd4654a3f73b4948f7ab42200fdd5414e37e910c460a2bf5a7d1fa8b49a3d355`
-- `gia_von`: `b7dff499f94cac04984b51b4cd22889dfc6e1e751309ff63728c6331b75c5689`
+The reconciliation determined that no non-zero opening inventory movement was required for the verified snapshot.
 
-## Source control reconciliation
+## Payment exception policy
 
-| Control | Result |
-| --- | ---: |
-| Sales-order business rows | 685 |
-| Sales-order groups | 303 |
-| Sales document total | 466,748,210 VND |
-| Sales line ↔ document total mismatches | 0 |
-| Purchase-order business rows | 180 |
-| Purchase-order groups | 17 |
-| Purchase document total | 18,629,000 VND |
-| Purchase line ↔ document total mismatches | 0 |
-| Goods-receipt business rows | 109 |
-| Goods-receipt groups | 14 |
-| Goods-receipt document total | 182,775,420 VND |
-| Receipt line ↔ document total mismatches | 0 |
-| Payment business rows | 340 |
-| Source payment total | 423,402,910 VND |
+Some historical payment facts could not be represented in the production payment ledger without guessing or violating transactional invariants. Under the Owner decision recorded in the SOT:
 
-The saved legacy period report reconciles exactly from canonical transaction rows:
+- unresolved historical payment facts remain private migration exceptions;
+- missing dates, amounts, allocations, or methods are not fabricated;
+- overpayment evidence is not truncated or silently reassigned;
+- affected historical receivable/payment figures remain non-authoritative until resolved through valid WebApp records.
 
-- sales: `148,130,850 VND`;
-- payments: `141,267,350 VND`;
-- debt: `6,863,500 VND`.
+## Private evidence boundary
 
-The selected `CÔNG NỢ KHÁCH HÀNG` checkpoint (`KH0096`) also reconciles exactly: source/derived orders `6,343,000 VND`, source/derived payments `6,343,000 VND`, balance `0 VND`.
+Exact financial controls, source row references, order/customer/SKU identifiers, snapshot hashes, Drive identifiers, and quarantine records are retained outside the public Git tree.
 
-## Inventory and opening balance decision
-
-The `THẺ KHO` current-stock side table contains 69 in-scope SKU rows. All **69/69** reconcile exactly from source transaction evidence using SKU-linked goods receipts minus SKU-linked sales issues.
-
-The only staged `Tồn đầu` candidate is `UKP95-700PP-C-T3 = -46,415`. It is **rejected as redundant**: receipt-minus-sales already equals the source closing quantity (`-65,765`) without applying that candidate. Applying it would double-count the negative opening position.
-
-Therefore OPS-072 accepts **no non-zero opening inventory balance** and no opening inventory movement should be posted for this snapshot.
-
-## Payment reconciliation blockers
-
-The source payment history cannot be loaded losslessly under the current OPS payment invariants without Owner decisions:
-
-1. **149** payment rows have no legacy payment method. Of these, **136** otherwise have a usable date, positive amount, and linked order. They can be represented traceably as `LEGACY_UNSPECIFIED` plus source-row provenance; this does not assert an actual historical method.
-2. **13** payment rows have no payment date. The OPS schema requires a payment date, while OPS-070 prohibits silently inventing missing/invalid dates.
-3. **1** payment row has no usable amount.
-4. **8** sales orders have source payment totals greater than their order totals. The current OPS workflow correctly rejects overpayment, and source evidence is insufficient to decide which payment row is duplicate, superseded, mis-keyed, or belongs elsewhere.
-
-Undated payment order numbers:
-
-- `DH-10092026-004`
-- `DH-11092026-001`
-- `DH-17092026-001`
-- `DH-18082026-006`
-- `DH-19082026-001`
-- `DH-20082026-005`
-- `DH-23082026-001`
-- `DH-23082026-002`
-- `DH-24082026-004`
-- `DH-25082026-001`
-- `DH-26082026-001`
-- `DH-27082026-002` (also has no usable amount)
-- `DH-27082026-003`
-
-Overpayment order groups:
-
-| Order | Order total | Source payment total | Excess |
-| --- | ---: | ---: | ---: |
-| `DH-23062026-001` | 13,723,000 | 20,143,000 | 6,420,000 |
-| `DH-20072026-001` | 2,865,450 | 3,365,450 | 500,000 |
-| `DH-06082026-003` | 2,892,000 | 5,584,000 | 2,692,000 |
-| `DH-15082026-002` | 844,500 | 855,500 | 11,000 |
-| `DH-16082026-001` | 418,000 | 836,000 | 418,000 |
-| `DH-03092026-001` | 1,573,500 | 1,648,500 | 75,000 |
-| `DH-17092026-001` | 1,013,500 | 1,213,500 | 200,000 |
-| `DH-21092026-005` | 1,658,000 | 3,316,000 | 1,658,000 |
-
-Because the source period report validates the raw payment totals, these rows must not simply be dropped or truncated to satisfy the target constraint; doing so would alter authoritative source receivable totals.
-
-## Owner decision — authoritative migration-exception treatment
-
-Owner decision recorded 2026-10-01:
-
-> Tất cả các dữ liệu chưa xác định ở trên giữ lại trong migration exception, không import vào payment chính; tôi sẽ xử lý sau trên WebApp.
-
-Authoritative implementation meaning:
-
-- the 13 undated historical payment rows remain preserved as migration exceptions and are not inserted into `customer_payments` until the Owner supplies valid payment dates;
-- the payment associated with `DH-27082026-002` that has no usable amount remains a migration exception and is not inserted into `customer_payments` until the Owner supplies a valid amount/treatment;
-- payment rows implicated in the 8 overpayment order groups remain migration exceptions where they cannot be represented without violating current OPS payment invariants; no amount is truncated, silently reassigned, or fabricated;
-- the preserved source/quarantine provenance remains the audit source for later Owner resolution;
-- after production deployment, the Owner may resolve an exception by creating a valid payment through the normal WebApp payment workflow once the correct historical facts are known;
-- affected order/customer receivable figures are non-authoritative until their migration exceptions are resolved. They must not be presented as fully reconciled historical receivables in any cutover sign-off while unresolved.
-
-No guessed dates, truncated payments, hidden reallocations, synthetic credits, or fabricated historical payment methods are applied.
-
-## Verification
-
-Real-snapshot reconciliation passed every non-ambiguous control above:
-
-- snapshot identity: PASS;
-- sales money controls: PASS;
-- purchase money controls: PASS;
-- receipt money controls: PASS;
-- saved period report checkpoint: PASS;
-- selected customer receivable checkpoint: PASS;
-- inventory: 69/69 SKU closing balances reconciled;
-- opening inventory: no non-zero opening movement required.
-
-OPS-072 is complete under the Owner-approved migration-exception policy above. The unresolved historical payment facts remain preserved as explicit post-deployment Owner exceptions rather than being fabricated or forced into the transactional payment ledger.
+OPS-072 is complete under this exception policy. OPS-075 owns final spreadsheet cutover.

@@ -23,17 +23,21 @@ jobs:
         run: python -m py_compile migration/ops_071_stage.py migration/ops_071_validate.py
       - name: Unit tests
         run: python -m unittest discover -s migration/tests -v
-      - name: Validate committed snapshot manifest
+      - name: Validate public snapshot manifest
         run: |
           python - <<'PY'
           import json, pathlib
           p=pathlib.Path('migration/ops_071_snapshot_manifest.json')
           x=json.loads(p.read_text(encoding='utf-8'))
           assert x['task_id']=='OPS-071'
+          assert x['public_copy'] is True
           assert len(x['sources'])==2
+          assert x['private_snapshot_evidence']['retained_outside_public_git'] is True
+          assert x['private_snapshot_evidence']['snapshot_identity_verified'] is True
+          forbidden={'drive_id','source_file_id','snapshot_drive_id','sha256','byte_size'}
           for s in x['sources']:
-              assert len(s['sha256'])==64
-              assert s['byte_size']>0
-              assert s['snapshot_drive_id']
-          print('OPS-071 snapshot manifest: PASS')
+              assert s['snapshot_verified'] is True
+              assert s['private_reference'] is True
+              assert forbidden.isdisjoint(s.keys())
+          print('OPS-071 public snapshot manifest: PASS')
           PY

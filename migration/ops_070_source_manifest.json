@@ -3,7 +3,7 @@
   "architecture_generation": 1,
   "captured_at": "2026-10-01",
   "purpose": "Machine-readable source inventory and mapping contract for OPS-071. No data migration is executed by this manifest.",
-  "source_row_reference_format": "gdrive:<file_id>/<sheet>/R<1-based-row-number>",
+  "source_row_reference_format": "private-source:<source_key>/<sheet>/R<1-based-row-number>",
   "sources": [
     {
       "source_key": "thu_chi",
@@ -11,9 +11,6 @@
       "resolved_title": "*SỔ THU - CHI",
       "provider": "google_drive",
       "mime_type": "application/vnd.google-apps.spreadsheet",
-      "file_id": "1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ",
-      "url": "https://docs.google.com/spreadsheets/d/1Y0oCJ1gxsBwFI2c6N-_ueMfDmqV29evLlNB_YJIX2GQ/edit?usp=drivesdk",
-      "modified_at": "2026-09-30T09:15:20.915Z",
       "locale": "vi_VN",
       "timezone": "Asia/Saigon",
       "role": "transaction_and_master_source",
@@ -153,7 +150,8 @@
           "canonical": false,
           "targets": []
         }
-      ]
+      ],
+      "private_source_reference": true
     },
     {
       "source_key": "gia_von",
@@ -161,9 +159,6 @@
       "resolved_title": "*BẢNG GIÁ VỐN",
       "provider": "google_drive",
       "mime_type": "application/vnd.google-apps.spreadsheet",
-      "file_id": "1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y",
-      "url": "https://docs.google.com/spreadsheets/d/1E7sj2w2-vFp7kHvk7eAqIwJ1F8zLDq-Einj2w7SWx_Y/edit?usp=drivesdk",
-      "modified_at": "2026-09-30T08:48:18.726Z",
       "locale": "vi_VN",
       "timezone": "Asia/Saigon",
       "role": "product_cost_pricing_source",
@@ -233,7 +228,8 @@
             "historical_review"
           ]
         }
-      ]
+      ],
+      "private_source_reference": true
     }
   ],
   "source_precedence": {
@@ -345,9 +341,9 @@
     "before_ops_071_extraction": true,
     "before_ops_075_cutover": true,
     "metadata": [
-      "file_id",
+      "private_source_reference",
       "title",
-      "drive_modified_at",
+      "source_modified_at",
       "export_timestamp",
       "export_format",
       "byte_size",
@@ -366,5 +362,7 @@
     ],
     "migration_execution_belongs_to_ops_071": true
   },
-  "ops_070_executes_migration": false
+  "ops_070_executes_migration": false,
+  "public_copy": true,
+  "private_evidence_required": true
 }
