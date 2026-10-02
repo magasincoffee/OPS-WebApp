@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(4);
+select plan(5);
 
 select ok(
   to_regprocedure('private.valid_customer_payment_total(uuid)') is not null,
@@ -30,6 +30,16 @@ select results_eq(
       and p.prosecdef$$,
   array[1::bigint],
   'receivable helper remains SECURITY DEFINER in private schema'
+);
+
+select results_eq(
+  $$select coalesce(c.reloptions @> array['security_invoker=true']::text[], false)
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname='public'
+      and c.relname='production_print_job_queue'$$,
+  array[true],
+  'production print queue enforces security_invoker'
 );
 
 select * from finish();
