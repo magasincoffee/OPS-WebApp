@@ -49,12 +49,12 @@ select is(
 );
 
 select results_eq(
-  $select p.prosecdef
+  $$select p.prosecdef
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
     where n.nspname='public'
       and p.proname='production_mobile_work_queue'
-      and pg_get_function_identity_arguments(p.oid)=''$,
+      and pg_get_function_identity_arguments(p.oid)=''$$,
   array[true],
   'production mobile queue uses a bounded SECURITY DEFINER RPC'
 );
