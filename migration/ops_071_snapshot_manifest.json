@@ -1,0 +1,31 @@
+{
+  "task_id": "OPS-071",
+  "architecture_generation": 1,
+  "run_id": "OPS071-20261001-A",
+  "public_copy": true,
+  "private_snapshot_evidence": {
+    "retained_outside_public_git": true,
+    "snapshot_identity_verified": true,
+    "exact_drive_identifiers_redacted": true,
+    "exact_hashes_redacted": true,
+    "exact_file_sizes_redacted": true
+  },
+  "sources": [
+    {
+      "source_key": "thu_chi",
+      "snapshot_verified": true,
+      "private_reference": true
+    },
+    {
+      "source_key": "gia_von",
+      "snapshot_verified": true,
+      "private_reference": true
+    }
+  ],
+  "policy": {
+    "sources_are_read_only": true,
+    "staging_outputs_are_not_committed_to_git": true,
+    "opening_inventory_is_staged_for_ops_072": true,
+    "quarantined_rows_are_never_silently_dropped": true
+  }
+}

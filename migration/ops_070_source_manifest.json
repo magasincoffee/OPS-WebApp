@@ -1,0 +1,368 @@
+{
+  "task_id": "OPS-070",
+  "architecture_generation": 1,
+  "captured_at": "2026-10-01",
+  "purpose": "Machine-readable source inventory and mapping contract for OPS-071. No data migration is executed by this manifest.",
+  "source_row_reference_format": "private-source:<source_key>/<sheet>/R<1-based-row-number>",
+  "sources": [
+    {
+      "source_key": "thu_chi",
+      "sot_name": "*SỔ THU - CHI.xlsx",
+      "resolved_title": "*SỔ THU - CHI",
+      "provider": "google_drive",
+      "mime_type": "application/vnd.google-apps.spreadsheet",
+      "locale": "vi_VN",
+      "timezone": "Asia/Saigon",
+      "role": "transaction_and_master_source",
+      "sheets": [
+        {
+          "title": "SẢN PHẨM",
+          "classification": "derived_cross_workbook_cache",
+          "canonical": false,
+          "targets": [
+            "validation_only"
+          ]
+        },
+        {
+          "title": "KHÁCH HÀNG",
+          "classification": "master",
+          "canonical": true,
+          "targets": [
+            "customers"
+          ]
+        },
+        {
+          "title": "CHÀNH XE",
+          "classification": "reference",
+          "canonical": "conditional",
+          "targets": [
+            "deliveries.carrier_note",
+            "snapshot"
+          ]
+        },
+        {
+          "title": "ĐIỀU CHỈNH KHO",
+          "classification": "inventory_adjustment_opening_candidates",
+          "canonical": "staged",
+          "targets": [
+            "inventory_movements",
+            "OPS-072"
+          ]
+        },
+        {
+          "title": "NHẬP KHO",
+          "classification": "goods_receipt_history",
+          "canonical": true,
+          "targets": [
+            "goods_receipts",
+            "goods_receipt_items",
+            "purchase_cost_history"
+          ]
+        },
+        {
+          "title": "ĐƠN HÀNG",
+          "classification": "sales_history",
+          "canonical": true,
+          "targets": [
+            "sales_orders",
+            "sales_order_items",
+            "delivery_context"
+          ]
+        },
+        {
+          "title": "ĐƠN HÀNG KHÁCH",
+          "classification": "print_template",
+          "canonical": false,
+          "targets": []
+        },
+        {
+          "title": "LÊN ĐƠN NCC",
+          "classification": "purchase_history",
+          "canonical": true,
+          "targets": [
+            "purchase_orders",
+            "purchase_order_items",
+            "suppliers"
+          ]
+        },
+        {
+          "title": "ĐƠN ĐẶT HÀNG NCC",
+          "classification": "print_template",
+          "canonical": false,
+          "targets": []
+        },
+        {
+          "title": "MẪU IN",
+          "classification": "print_template",
+          "canonical": false,
+          "targets": []
+        },
+        {
+          "title": "THU TIỀN",
+          "classification": "payment_history_with_helpers",
+          "canonical": "A:I_only",
+          "targets": [
+            "customer_payments"
+          ]
+        },
+        {
+          "title": "BÁO CÁO",
+          "classification": "derived_report",
+          "canonical": false,
+          "targets": [
+            "OPS-072_reconciliation"
+          ]
+        },
+        {
+          "title": "THẺ KHO",
+          "classification": "derived_inventory_card",
+          "canonical": false,
+          "targets": [
+            "OPS-072_reconciliation"
+          ]
+        },
+        {
+          "title": "TRA CỨU",
+          "classification": "derived_lookup",
+          "canonical": false,
+          "targets": []
+        },
+        {
+          "title": "CÔNG NỢ KHÁCH HÀNG",
+          "classification": "derived_receivable_report",
+          "canonical": false,
+          "targets": [
+            "OPS-072_reconciliation"
+          ]
+        },
+        {
+          "title": "THAM SỐ",
+          "classification": "legacy_parameters",
+          "canonical": "conditional",
+          "targets": [
+            "minimum_stock_fallback",
+            "snapshot"
+          ]
+        },
+        {
+          "title": "DATA",
+          "classification": "hidden_helper_cache",
+          "canonical": false,
+          "targets": []
+        }
+      ],
+      "private_source_reference": true
+    },
+    {
+      "source_key": "gia_von",
+      "sot_name": "*BẢNG GIÁ VỐN.xlsx",
+      "resolved_title": "*BẢNG GIÁ VỐN",
+      "provider": "google_drive",
+      "mime_type": "application/vnd.google-apps.spreadsheet",
+      "locale": "vi_VN",
+      "timezone": "Asia/Saigon",
+      "role": "product_cost_pricing_source",
+      "sheets": [
+        {
+          "title": "COST NẮP",
+          "classification": "secondary_accessory_cost",
+          "canonical": "conditional",
+          "targets": [
+            "product_variants",
+            "product_packaging",
+            "purchase_cost_history",
+            "pricing_rules"
+          ]
+        },
+        {
+          "title": "BẢNG BÁO GIÁ",
+          "classification": "current_product_cost_pricing_master",
+          "canonical": true,
+          "targets": [
+            "products",
+            "product_variants",
+            "product_packaging",
+            "purchase_cost_history",
+            "pricing_rules",
+            "price_tiers"
+          ]
+        },
+        {
+          "title": "BẢNG BÁO GIÁ MỚI",
+          "classification": "work_in_progress_secondary_pricing",
+          "canonical": false,
+          "targets": [
+            "conflict_review"
+          ]
+        },
+        {
+          "title": "COST PHỤ KIỆN",
+          "classification": "secondary_accessory_cost",
+          "canonical": "conditional",
+          "targets": [
+            "product_variants",
+            "product_packaging",
+            "purchase_cost_history",
+            "pricing_rules"
+          ]
+        },
+        {
+          "title": "Trang tính5",
+          "classification": "ad_hoc_legacy_cost",
+          "canonical": false,
+          "targets": [
+            "review_only"
+          ]
+        },
+        {
+          "title": "BÁO GIÁ",
+          "classification": "broken_legacy_derived_quote",
+          "canonical": false,
+          "targets": []
+        },
+        {
+          "title": "Ý Nam",
+          "classification": "historical_supplier_quote",
+          "canonical": false,
+          "targets": [
+            "historical_review"
+          ]
+        }
+      ],
+      "private_source_reference": true
+    }
+  ],
+  "source_precedence": {
+    "customers": [
+      "KHÁCH HÀNG"
+    ],
+    "sales_orders": [
+      "ĐƠN HÀNG",
+      "ĐƠN HÀNG KHÁCH:exclude_template"
+    ],
+    "payments": [
+      "THU TIỀN:A:I",
+      "CÔNG NỢ KHÁCH HÀNG:reconcile_only"
+    ],
+    "purchasing": [
+      "LÊN ĐƠN NCC",
+      "ĐƠN ĐẶT HÀNG NCC:exclude_template"
+    ],
+    "goods_receipts": [
+      "NHẬP KHO"
+    ],
+    "inventory": [
+      "NHẬP KHO",
+      "ĐIỀU CHỈNH KHO",
+      "reliable_order_issue_evidence",
+      "THẺ KHO:reconcile_only"
+    ],
+    "product_cost_pricing": [
+      "BẢNG BÁO GIÁ",
+      "BẢNG BÁO GIÁ MỚI:secondary",
+      "COST NẮP:secondary",
+      "COST PHỤ KIỆN:secondary",
+      "Trang tính5:secondary",
+      "BÁO GIÁ:exclude_broken",
+      "Ý Nam:historical"
+    ]
+  },
+  "placeholder_values": [
+    "",
+    "-",
+    "--",
+    "???",
+    "#N/A",
+    "#REF!"
+  ],
+  "generated_identifiers": {
+    "sku": "MIG-<ASCII-SLUG>-<first8_sha256(source_file_id|sheet|row|clean_product_name|clean_package_text)>",
+    "supplier_code": "MIG-SUP-<first8_sha256(normalized_supplier_name)>"
+  },
+  "dedupe": {
+    "customers": [
+      "customer_code",
+      "unique_normalized_phone",
+      "normalized_brand_plus_address",
+      "review"
+    ],
+    "suppliers": [
+      "exact_normalized_name",
+      "review_no_fuzzy_merge"
+    ],
+    "products": [
+      "accepted_unique_sku",
+      "exact_name_plus_type_material_package_context",
+      "review"
+    ],
+    "orders": [
+      "normalized_order_number_plus_header_consistency"
+    ],
+    "purchase_orders": [
+      "normalized_document_number_plus_supplier_date_consistency"
+    ],
+    "payments": [
+      "source_row_reference_not_receipt_number"
+    ]
+  },
+  "quarantine_reasons": [
+    "REVIEW_CUSTOMER_CONFLICT",
+    "REVIEW_SUPPLIER_DUPLICATE",
+    "REVIEW_MISSING_SKU_MASTER",
+    "REVIEW_MISSING_SKU_ORDER_LINE",
+    "REVIEW_DUPLICATE_SKU",
+    "REVIEW_PACKAGING",
+    "REVIEW_COST_COMPONENTS",
+    "REVIEW_PRICE_BLOCK",
+    "REVIEW_STATUS",
+    "REVIEW_ORDER_CONFLICT",
+    "REVIEW_PO_CONFLICT",
+    "REVIEW_ORPHAN_RECEIPT",
+    "REVIEW_PAYMENT_LINK",
+    "REVIEW_NEGATIVE_STOCK",
+    "REVIEW_OPENING_BALANCE",
+    "REVIEW_SPREADSHEET_ERROR"
+  ],
+  "verified_anomalies": [
+    "SẢN PHẨM uses IMPORTRANGE from selected BẢNG GIÁ VỐN workbook",
+    "at least one sales-order line has blank Mã SP",
+    "supplier names are free text",
+    "Trạng thái giao mixes payment/production semantics",
+    "THẺ KHO contains negative stock",
+    "ĐIỀU CHỈNH KHO includes negative Tồn đầu example",
+    "DATA contains #N/A/#REF! spreadsheet errors",
+    "legacy BÁO GIÁ contains #REF! from missing sheet",
+    "COST PHỤ KIỆN reuses non-unique generic Mã SP values",
+    "THU TIỀN contains duplicate displayed receipt references",
+    "selling price tiers are fixed spreadsheet columns",
+    "cost/pricing source contains shorthand or unlabeled columns that must not be guessed"
+  ],
+  "immutable_snapshot_required": {
+    "before_ops_071_extraction": true,
+    "before_ops_075_cutover": true,
+    "metadata": [
+      "private_source_reference",
+      "title",
+      "source_modified_at",
+      "export_timestamp",
+      "export_format",
+      "byte_size",
+      "sha256",
+      "task_or_run_id"
+    ]
+  },
+  "next_task_contract": {
+    "task_id": "OPS-071",
+    "required_outputs": [
+      "deterministic extraction/staging scripts",
+      "mapping implementation matching this manifest",
+      "quarantine output with source_row_reference",
+      "reconciliation report inputs",
+      "immutable snapshot verification"
+    ],
+    "migration_execution_belongs_to_ops_071": true
+  },
+  "ops_070_executes_migration": false,
+  "public_copy": true,
+  "private_evidence_required": true
+}
