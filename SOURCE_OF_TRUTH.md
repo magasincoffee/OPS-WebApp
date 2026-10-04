@@ -1154,12 +1154,17 @@ Task status vocabulary:
       - The static-export verification gate rejects production route handlers, `/api/` dependencies, `next/headers`, service-role references, root proxy/middleware server runtime, and unexpected Next server bundles.
       - PR-head verification passed: Scaffold CI `37190082327` completed `success` with install, lint, static build, and static-boundary verification all GREEN; Public Repository Scrub `37190082358` also completed `success`.
       - Exact-main verification on commit `e9659c25535f4ba68e899b26278c6618a06427d7` passed: Scaffold CI `37190492508`, Public Repository Scrub `37190492497`, and OPS Source Export `37190492569` all completed `success`.
-    - `074-C04` — **Tabler UI/UX unification — TODO.** Meet the Section 2.10 visual acceptance criteria across the V1 application shell and primary workflows without changing verified business logic or authorization behavior.
+    - `074-C04` — **Tabler UI/UX unification — DONE.**
+      - Implementation merged through PR #7 to `main` at commit `b90ed12222a79613b5d48754d64a6cd9292bd4e7`.
+      - Production frontend now uses one consistent Tabler-style shell across V1 modules with grouped role-aware desktop navigation, collapsible mobile navigation, compact topbar, breadcrumb/action headers, standardized cards/tables/filters/buttons/badges/alerts/loading/empty states, responsive overflow handling, and preserved Supabase query/RPC/RBAC boundaries.
+      - A durable Tabler UI acceptance contract was added to Scaffold CI so future changes must retain the shell, responsive navigation, standardized table/state patterns, role-aware filtering, and mobile breakpoint requirements.
+      - PR-head verification passed: Scaffold CI `37193639863` and Public Repository Scrub `37193639897` completed `success`.
+      - Exact-main verification on commit `b90ed12222a79613b5d48754d64a6cd9292bd4e7` passed: Scaffold CI `37197343664` and Public Repository Scrub `37197343658` completed `success`.
     - `074-C05` — **GitHub Actions Pages deployment — TODO.** Enable/configure deployment from the canonical public repository, publish the static artifact, and establish the final production Pages origin with successful deployment evidence.
     - `074-C06` — **Supabase Auth production redirect/callback configuration — TODO.** Configure the final Pages origin/path for sign-in/reset/confirmation flows and verify the browser session flow without exposing service-role or secret credentials.
     - `074-C07` — **Live production verification + OPS-074 closeout — TODO.** Verify production login, representative roles, primary V1 workflows, production queue, Supabase reads/writes, Pages delivery, security boundaries, and release gates; then update this SOT to mark OPS-074 DONE and advance authority to OPS-075.
-  - `CURRENT_CHECKPOINT=074-C04`
-  - `NEXT_CHECKPOINT=074-C05` (only after `074-C04` is recorded DONE)
+  - `CURRENT_CHECKPOINT=074-C05`
+  - `NEXT_CHECKPOINT=074-C06` (only after `074-C05` is recorded DONE)
 
 - **OPS-075 — Final spreadsheet cutover** — TODO
 
