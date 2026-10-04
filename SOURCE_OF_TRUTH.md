@@ -1148,13 +1148,18 @@ Task status vocabulary:
       - Remediation rewrote the public branch history to clean snapshot commit `115f38b51a79aabca815d7429880b786aae2b0a9`, preserving the current sanitized tree while severing the sensitive ancestry. At verification time, `main` and the remaining OPS-074 branches all pointed to this clean snapshot.
       - Public Repository Scrub run `37186542825` completed `success` with full-history scanning enabled. Exact-main verification on the same clean snapshot also passed: Database Migrations CI `37186542842`, Scaffold CI `37186542823`, Migration Tools CI `37186542843`, and OPS Source Export `37186542826`.
       - The public canonical repository now retains automated full-history exposure scanning as a release gate.
-    - `074-C03` — **Static GitHub Pages runtime + browser Supabase session — TODO.** Remove remaining server-runtime dependency, make the frontend static-export compatible, preserve RLS/RPC as the authorization boundary, and pass scaffold/build/static-export checks.
+    - `074-C03` — **Static GitHub Pages runtime + browser Supabase session — DONE.**
+      - Static/browser-runtime implementation merged through PR #5 to `main` at commit `e9659c25535f4ba68e899b26278c6618a06427d7`.
+      - Production frontend now uses Next.js static export with a browser Supabase client/session; legacy server-rendered routes/helpers and the root server proxy were archived outside the production runtime, and production `app/` + `lib/` retain RLS/RPC as the authorization boundary without service-role credentials.
+      - The static-export verification gate rejects production route handlers, `/api/` dependencies, `next/headers`, service-role references, root proxy/middleware server runtime, and unexpected Next server bundles.
+      - PR-head verification passed: Scaffold CI `37190082327` completed `success` with install, lint, static build, and static-boundary verification all GREEN; Public Repository Scrub `37190082358` also completed `success`.
+      - Exact-main verification on commit `e9659c25535f4ba68e899b26278c6618a06427d7` passed: Scaffold CI `37190492508`, Public Repository Scrub `37190492497`, and OPS Source Export `37190492569` all completed `success`.
     - `074-C04` — **Tabler UI/UX unification — TODO.** Meet the Section 2.10 visual acceptance criteria across the V1 application shell and primary workflows without changing verified business logic or authorization behavior.
     - `074-C05` — **GitHub Actions Pages deployment — TODO.** Enable/configure deployment from the canonical public repository, publish the static artifact, and establish the final production Pages origin with successful deployment evidence.
     - `074-C06` — **Supabase Auth production redirect/callback configuration — TODO.** Configure the final Pages origin/path for sign-in/reset/confirmation flows and verify the browser session flow without exposing service-role or secret credentials.
     - `074-C07` — **Live production verification + OPS-074 closeout — TODO.** Verify production login, representative roles, primary V1 workflows, production queue, Supabase reads/writes, Pages delivery, security boundaries, and release gates; then update this SOT to mark OPS-074 DONE and advance authority to OPS-075.
-  - `CURRENT_CHECKPOINT=074-C03`
-  - `NEXT_CHECKPOINT=074-C04` (only after `074-C03` is recorded DONE)
+  - `CURRENT_CHECKPOINT=074-C04`
+  - `NEXT_CHECKPOINT=074-C05` (only after `074-C04` is recorded DONE)
 
 - **OPS-075 — Final spreadsheet cutover** — TODO
 
