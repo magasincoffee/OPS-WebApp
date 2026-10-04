@@ -34,3 +34,6 @@ jobs:
 
       - name: Verify static export boundary
         run: npm run verify:static
+
+      - name: Verify Tabler UI contract
+        run: npm run verify:ui

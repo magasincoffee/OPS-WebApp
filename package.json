@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint .",
-    "verify:static": "node scripts/verify-static-export.mjs"
+    "verify:static": "node scripts/verify-static-export.mjs",
+    "verify:ui": "node scripts/verify-tabler-ui.mjs"
   },
   "dependencies": {
     "next": "16.3.6",
