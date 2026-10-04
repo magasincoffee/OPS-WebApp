@@ -1143,14 +1143,18 @@ Task status vocabulary:
       - Production verification confirms `public.production_print_job_queue` has `security_invoker=true`, `authenticated` has no direct SELECT privilege on the view, and both `production_mobile_work_queue()` and `print_job_tracking(uuid)` are bounded SECURITY DEFINER RPCs with explicit role/user filtering and fixed search paths.
       - Production security advisors no longer report the prior `production_print_job_queue` SECURITY DEFINER-view ERROR. The remaining advisor notices are WARN-level SECURITY DEFINER RPC notices and are not the prior blocking view error.
       - No active production user currently holds PRINTER_PRODUCTION, so live impersonation against a real production assignee was not possible without fabricating a production identity. PRINTER_PRODUCTION access/non-regression is instead covered by the fresh full pgTAP Database Migrations CI, including OPS-040/OPS-041/OPS-042 production assignment, tracking, active mobile queue, and completion semantics.
-    - `074-C02` — **Historical Git exposure verification/remediation — TODO.** Verify the full public Git history for credentials/secrets and superseded sensitive migration evidence; remediate any exposure and retain public-safe evidence that the history is clean enough for the public canonical repository.
+    - `074-C02` — **Historical Git exposure verification/remediation — DONE.**
+      - Initial full-history Public Repository Scrub run `37186017708` correctly failed and identified historical exposure categories without printing secret values: Drive IDs/URL in legacy migration manifests, legacy order/VND controls in historical SOT/reconciliation evidence, and historical snapshot SHA-256 evidence.
+      - Remediation rewrote the public branch history to clean snapshot commit `115f38b51a79aabca815d7429880b786aae2b0a9`, preserving the current sanitized tree while severing the sensitive ancestry. At verification time, `main` and the remaining OPS-074 branches all pointed to this clean snapshot.
+      - Public Repository Scrub run `37186542825` completed `success` with full-history scanning enabled. Exact-main verification on the same clean snapshot also passed: Database Migrations CI `37186542842`, Scaffold CI `37186542823`, Migration Tools CI `37186542843`, and OPS Source Export `37186542826`.
+      - The public canonical repository now retains automated full-history exposure scanning as a release gate.
     - `074-C03` — **Static GitHub Pages runtime + browser Supabase session — TODO.** Remove remaining server-runtime dependency, make the frontend static-export compatible, preserve RLS/RPC as the authorization boundary, and pass scaffold/build/static-export checks.
     - `074-C04` — **Tabler UI/UX unification — TODO.** Meet the Section 2.10 visual acceptance criteria across the V1 application shell and primary workflows without changing verified business logic or authorization behavior.
     - `074-C05` — **GitHub Actions Pages deployment — TODO.** Enable/configure deployment from the canonical public repository, publish the static artifact, and establish the final production Pages origin with successful deployment evidence.
     - `074-C06` — **Supabase Auth production redirect/callback configuration — TODO.** Configure the final Pages origin/path for sign-in/reset/confirmation flows and verify the browser session flow without exposing service-role or secret credentials.
     - `074-C07` — **Live production verification + OPS-074 closeout — TODO.** Verify production login, representative roles, primary V1 workflows, production queue, Supabase reads/writes, Pages delivery, security boundaries, and release gates; then update this SOT to mark OPS-074 DONE and advance authority to OPS-075.
-  - `CURRENT_CHECKPOINT=074-C02` (`REPAIR_REQUIRED` after failed CI run `37167270115`)
-  - `NEXT_CHECKPOINT=074-C03` (only after `074-C02` is recorded DONE)
+  - `CURRENT_CHECKPOINT=074-C03`
+  - `NEXT_CHECKPOINT=074-C04` (only after `074-C03` is recorded DONE)
 
 - **OPS-075 — Final spreadsheet cutover** — TODO
 
