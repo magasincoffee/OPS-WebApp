@@ -100,7 +100,7 @@ language plpgsql
 stable
 security definer
 set search_path = pg_catalog, public, pg_temp
-as $
+as $$
 declare
   v_user_id uuid := (select auth.uid());
   v_is_owner boolean := public.current_user_has_role('OWNER_ADMIN');
@@ -150,7 +150,7 @@ begin
     )
   order by pj.due_date asc, pj.job_number asc;
 end;
-$;
+$$;
 
 revoke all on function public.print_job_tracking(uuid) from public, anon;
 grant execute on function public.print_job_tracking(uuid)
