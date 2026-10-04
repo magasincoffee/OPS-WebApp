@@ -29,5 +29,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
+      - name: Build static export
         run: npm run build
+
+      - name: Verify static export boundary
+        run: npm run verify:static
