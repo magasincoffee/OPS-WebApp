@@ -281,30 +281,33 @@ export default function HomePage() {
   const [route, setRoute] = useState<ModuleKey>("dashboard");
   const [authReady, setAuthReady] = useState(false);
   const [roleError, setRoleError] = useState("");
-  const [configMissing, setConfigMissing] = useState(false);
 
   useEffect(() => {
     const supabase = getBrowserSupabase();
-    setClient(supabase);
-    setConfigMissing(!supabase);
-    setRoute(readRoute());
-
     const onHashChange = () => setRoute(readRoute());
     window.addEventListener("hashchange", onHashChange);
 
+    queueMicrotask(() => setRoute(readRoute()));
+
     if (!supabase) {
-      setAuthReady(true);
+      queueMicrotask(() => setAuthReady(true));
       return () => window.removeEventListener("hashchange", onHashChange);
     }
 
     void supabase.auth.getSession().then(({ data }) => {
+      setClient(supabase);
       setSession(data.session);
       setAuthReady(true);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setClient(supabase);
       setSession(nextSession);
       setAuthReady(true);
+      if (!nextSession) {
+        setRoles(new Set());
+        setRoleError("");
+      }
     });
 
     return () => {
@@ -315,15 +318,16 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!client || !session) {
-      setRoles(new Set());
       return;
     }
 
     let cancelled = false;
-    setRoleError("");
     void loadRoles(client)
       .then((nextRoles) => {
-        if (!cancelled) setRoles(nextRoles);
+        if (!cancelled) {
+          setRoles(nextRoles);
+          setRoleError("");
+        }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -351,7 +355,7 @@ export default function HomePage() {
   }
 
   if (!session) {
-    return <Login client={client} configMissing={configMissing} />;
+    return <Login client={client} configMissing={authReady && !client} />;
   }
 
   const isProduction = roles.has("PRINTER_PRODUCTION") && !roles.has("OWNER_ADMIN");
