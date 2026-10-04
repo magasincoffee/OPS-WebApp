@@ -33,6 +33,8 @@ assert(
 assert(!productionSource.includes("next/headers"), "production app imports next/headers");
 assert(!productionSource.includes("/api/"), "production app still depends on /api routes");
 assert(!productionSource.includes("SUPABASE_SERVICE_ROLE"), "production app references service-role credentials");
+assert(!fs.existsSync(path.join(root, "proxy.ts")), "root proxy/middleware server runtime remains");
+assert(!fs.existsSync(path.join(root, "middleware.ts")), "root proxy/middleware server runtime remains");
 assert(
   !outFiles.some((file) => file.includes(`${path.sep}_next${path.sep}server${path.sep}`)),
   "static artifact unexpectedly contains a Next server bundle",
