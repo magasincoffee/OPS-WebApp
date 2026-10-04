@@ -17,10 +17,15 @@ function walk(dir) {
 }
 
 const appDir = path.join(root, "app");
+const libDir = path.join(root, "lib");
 const outDir = path.join(root, "out");
+
 const appFiles = walk(appDir);
+const libFiles = walk(libDir);
+const productionFiles = [...appFiles, ...libFiles];
 const outFiles = walk(outDir);
-const productionSource = appFiles
+
+const productionSource = productionFiles
   .filter((file) => /\.(ts|tsx|js|jsx)$/.test(file))
   .map((file) => fs.readFileSync(file, "utf8"))
   .join("\n");
@@ -52,6 +57,6 @@ if (failures.length > 0) {
 }
 
 console.log("STATIC EXPORT VERIFY: PASS");
-console.log("- client-only production app");
-console.log("- no route handlers or /api dependency");
+console.log("- client-only production app/lib");
+console.log("- no route handlers, /api dependency, or root server proxy");
 console.log("- no Next server bundle in out/");
