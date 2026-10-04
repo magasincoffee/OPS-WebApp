@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(5);
+select plan(7);
 
 select ok(
   to_regprocedure('private.valid_customer_payment_total(uuid)') is not null,
@@ -40,6 +40,23 @@ select results_eq(
       and c.relname='production_print_job_queue'$$,
   array[true],
   'production print queue enforces security_invoker'
+);
+
+select is(
+  has_table_privilege('authenticated','public.production_print_job_queue','SELECT'),
+  false,
+  'authenticated cannot bypass the production RPC through the queue view'
+);
+
+select results_eq(
+  $select p.prosecdef
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname='public'
+      and p.proname='production_mobile_work_queue'
+      and pg_get_function_identity_arguments(p.oid)=''$,
+  array[true],
+  'production mobile queue uses a bounded SECURITY DEFINER RPC'
 );
 
 select * from finish();
