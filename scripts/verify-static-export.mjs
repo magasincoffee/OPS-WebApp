@@ -27,7 +27,7 @@ const productionSource = appFiles
 
 assert(fs.existsSync(path.join(outDir, "index.html")), "out/index.html is missing");
 assert(
-  !appFiles.some((file) => file.endsWith("route.ts") || file.endsWith("route.js")),
+  !productionFiles.some((file) => file.endsWith("route.ts") || file.endsWith("route.js")),
   "production app still contains Next route handlers",
 );
 assert(!productionSource.includes("next/headers"), "production app imports next/headers");
