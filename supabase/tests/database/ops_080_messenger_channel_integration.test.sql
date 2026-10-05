@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(17);
+select plan(20);
 
 select is(
   has_function_privilege('authenticated','public.messenger_catalog_stock_search(text,integer)','EXECUTE'),
