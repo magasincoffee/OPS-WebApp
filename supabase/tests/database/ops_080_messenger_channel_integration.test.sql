@@ -283,9 +283,7 @@ reset role;
 select set_config('request.jwt.claim.role','authenticated',true);
 
 select throws_ok(
-  $
-    select public.messenger_catalog_stock_search('700ml',8)
-  $$,
+  'select public.messenger_catalog_stock_search(''700ml'',8)',
   '42501',
   'Messenger integration requires service_role',
   'database boundary also rejects calls without service-role JWT claim'
