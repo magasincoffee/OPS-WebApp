@@ -21,7 +21,8 @@ jobs:
     env:
       NEXT_PUBLIC_BASE_PATH: /OPS-WebApp
       NEXT_PUBLIC_SUPABASE_URL: https://foclxkjnypjolcwqekku.supabase.co
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      # Public browser key; safe to expose by SOT Architecture Generation 4. Authorization remains RLS/RPC-backed.
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_YgDtnJnMpSnKeEqT_1pbZw_hFOJoBPb
 
     steps:
       - name: Checkout
