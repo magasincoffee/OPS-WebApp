@@ -168,7 +168,7 @@ select is(
       'sale_quantity',2,
       'print_mode','PLAIN'
     ))
-  )->>'status',
+  )->>'status'),
   'RESERVED',
   'explicit Messenger order creates and reserves canonical OPS sales order'
 );
@@ -210,7 +210,7 @@ select is(
       'sale_quantity',2,
       'print_mode','PLAIN'
     ))
-  )->>'status',
+  )->>'status'),
   'EXISTING',
   'replayed confirmation returns existing order'
 );
@@ -254,7 +254,7 @@ select is(
       'sale_quantity',4,
       'print_mode','PLAIN'
     ))
-  )->>'status',
+  )->>'status'),
   'INSUFFICIENT_STOCK',
   'insufficient available stock is reported instead of oversold'
 );
