@@ -280,9 +280,10 @@ select results_eq(
 );
 
 reset role;
+select set_config('request.jwt.claim.role','authenticated',true);
 
 select throws_ok(
-  $$
+  $
     select public.messenger_catalog_stock_search('700ml',8)
   $$,
   '42501',
