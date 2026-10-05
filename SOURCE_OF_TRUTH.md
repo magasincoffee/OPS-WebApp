@@ -1160,10 +1160,16 @@ Task status vocabulary:
       - A durable Tabler UI acceptance contract was added to Scaffold CI so future changes must retain the shell, responsive navigation, standardized table/state patterns, role-aware filtering, and mobile breakpoint requirements.
       - PR-head verification passed: Scaffold CI `37193639863` and Public Repository Scrub `37193639897` completed `success`.
       - Exact-main verification on commit `b90ed12222a79613b5d48754d64a6cd9292bd4e7` passed: Scaffold CI `37197343664` and Public Repository Scrub `37197343658` completed `success`.
-    - `074-C05` — **GitHub Actions Pages deployment — TODO.** Enable/configure deployment from the canonical public repository, publish the static artifact, and establish the final production Pages origin with successful deployment evidence.
+    - `074-C05` — **GitHub Actions Pages deployment — BLOCKED_OWNER.** Enable/configure deployment from the canonical public repository, publish the static artifact, and establish the final production Pages origin with successful deployment evidence.
+      - Implementation is present at `.github/workflows/pages-deploy.yml` with static build, static-boundary verification, Tabler UI verification, Pages artifact upload, and deploy-pages stages.
+      - Commit `9db7a36a25b5839269cd29d568a9b294e51bc671` supplied the real Supabase browser publishable key directly to the Pages build; this key is public-browser configuration permitted by Architecture Generation 4 and does not weaken RLS/RPC authorization.
+      - Exact-main verification for that commit: Scaffold CI `37246444042`, Public Repository Scrub `37246444088`, and OPS Source Export `37246444044` completed `success`.
+      - Deploy GitHub Pages run `37246444089` completed `failure` only at `actions/configure-pages@v5`: static build/lint/static-boundary/Tabler checks passed and the publishable key was populated, but the first-time Pages site creation returned `Resource not accessible by integration`.
+      - **Required Owner action:** open repository Settings -> Pages and enable GitHub Pages for this repository with **Source = GitHub Actions**. This is an account/repository administration boundary unavailable to the connected GitHub App token. Do not retry the same failed run while Pages remains disabled.
+      - After Owner enables Pages, rerun/trigger `Deploy GitHub Pages`; C05 becomes DONE only after a successful deployment establishes the production origin `https://magasincoffee.github.io/OPS-WebApp/`.
     - `074-C06` — **Supabase Auth production redirect/callback configuration — TODO.** Configure the final Pages origin/path for sign-in/reset/confirmation flows and verify the browser session flow without exposing service-role or secret credentials.
     - `074-C07` — **Live production verification + OPS-074 closeout — TODO.** Verify production login, representative roles, primary V1 workflows, production queue, Supabase reads/writes, Pages delivery, security boundaries, and release gates; then update this SOT to mark OPS-074 DONE and advance authority to OPS-075.
-  - `CURRENT_CHECKPOINT=074-C05`
+  - `CURRENT_CHECKPOINT=074-C05` (`BLOCKED_OWNER`: enable GitHub Pages, Source = GitHub Actions)
   - `NEXT_CHECKPOINT=074-C06` (only after `074-C05` is recorded DONE)
 
 - **OPS-075 — Final spreadsheet cutover** — TODO
