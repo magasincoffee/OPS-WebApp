@@ -95,12 +95,16 @@ async function loadRoles(client: SupabaseClient) {
 function Login({
   client,
   configMissing,
+  message,
 }: {
   client: SupabaseClient | null;
   configMissing: boolean;
+  message?: string;
 }) {
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState(message ?? "");
   const [busy, setBusy] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -120,6 +124,31 @@ function Login({
     if (result.error) setError("Email hoặc mật khẩu không hợp lệ.");
   }
 
+  async function requestPasswordReset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!client) return;
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "").trim();
+    if (!email) {
+      setError("Vui lòng nhập email.");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    setNotice("");
+    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    const result = await client.auth.resetPasswordForEmail(email, { redirectTo });
+    setBusy(false);
+
+    if (result.error) {
+      setError("Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại.");
+      return;
+    }
+
+    setNotice("Nếu email tồn tại trong hệ thống, liên kết đặt lại mật khẩu đã được gửi.");
+  }
+
   return (
     <main className="auth-page">
       <section className="auth-card">
@@ -132,15 +161,42 @@ function Login({
         </div>
         <div className="auth-heading">
           <span className="eyebrow">Hệ thống vận hành nội bộ</span>
-          <h1>Đăng nhập</h1>
-          <p>Phiên đăng nhập dùng Supabase Auth. Quyền dữ liệu vẫn do RLS/RPC của database quyết định.</p>
+          <h1>{forgotMode ? "Quên mật khẩu" : "Đăng nhập"}</h1>
+          <p>
+            {forgotMode
+              ? "Nhập email tài khoản. Hệ thống sẽ gửi liên kết đặt lại mật khẩu qua Supabase Auth."
+              : "Phiên đăng nhập dùng Supabase Auth. Quyền dữ liệu vẫn do RLS/RPC của database quyết định."}
+          </p>
         </div>
         {configMissing ? (
           <div className="alert alert-danger">
             Chưa cấu hình NEXT_PUBLIC_SUPABASE_URL và NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY cho bản build.
           </div>
         ) : null}
+        {notice ? <div className="alert">{notice}</div> : null}
         {error ? <div className="alert alert-danger">{error}</div> : null}
+        {forgotMode ? (
+          <form className="form-stack" onSubmit={requestPasswordReset}>
+            <label className="form-field">
+              <span>Email</span>
+              <input name="email" type="email" autoComplete="email" placeholder="name@example.com" required />
+            </label>
+            <button className="btn btn-primary btn-block" disabled={!client || busy} type="submit">
+              {busy ? "Đang gửi..." : "Gửi liên kết đặt lại mật khẩu"}
+            </button>
+            <button
+              className="btn btn-secondary btn-block"
+              type="button"
+              onClick={() => {
+                setForgotMode(false);
+                setError("");
+                setNotice("");
+              }}
+            >
+              Quay lại đăng nhập
+            </button>
+          </form>
+        ) : (
         <form className="form-stack" onSubmit={submit}>
           <label className="form-field">
             <span>Email</span>
@@ -152,6 +208,91 @@ function Login({
           </label>
           <button className="btn btn-primary btn-block" disabled={!client || busy} type="submit">
             {busy ? "Đang đăng nhập..." : "Đăng nhập"}
+          </button>
+          <button
+            className="btn btn-secondary btn-block"
+            type="button"
+            onClick={() => {
+              setForgotMode(true);
+              setError("");
+              setNotice("");
+            }}
+          >
+            Quên mật khẩu
+          </button>
+        </form>
+        )}
+      </section>
+    </main>
+  );
+}
+
+function PasswordRecovery({
+  client,
+  onComplete,
+}: {
+  client: SupabaseClient;
+  onComplete: (message: string) => void;
+}) {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const password = String(form.get("password") ?? "");
+    const confirmPassword = String(form.get("confirmPassword") ?? "");
+
+    if (password.length < 8) {
+      setError("Mật khẩu mới phải có ít nhất 8 ký tự.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Hai mật khẩu không khớp.");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    const result = await client.auth.updateUser({ password });
+    if (result.error) {
+      setBusy(false);
+      setError(result.error.message || "Không thể cập nhật mật khẩu.");
+      return;
+    }
+
+    await client.auth.signOut();
+    setBusy(false);
+    onComplete("Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.");
+  }
+
+  return (
+    <main className="auth-page">
+      <section className="auth-card">
+        <div className="auth-brand">
+          <span className="brand-mark">M</span>
+          <div>
+            <strong>OPS WebApp</strong>
+            <small>MAGASIN Operations</small>
+          </div>
+        </div>
+        <div className="auth-heading">
+          <span className="eyebrow">Khôi phục tài khoản</span>
+          <h1>Đặt mật khẩu mới</h1>
+          <p>Liên kết khôi phục đã được xác thực. Hãy đặt mật khẩu mới cho tài khoản này.</p>
+        </div>
+        {error ? <div className="alert alert-danger">{error}</div> : null}
+        <form className="form-stack" onSubmit={submit}>
+          <label className="form-field">
+            <span>Mật khẩu mới</span>
+            <input name="password" type="password" autoComplete="new-password" minLength={8} required />
+          </label>
+          <label className="form-field">
+            <span>Nhập lại mật khẩu mới</span>
+            <input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required />
+          </label>
+          <button className="btn btn-primary btn-block" disabled={busy} type="submit">
+            {busy ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
           </button>
         </form>
       </section>
@@ -385,6 +526,8 @@ export default function HomePage() {
   const [authReady, setAuthReady] = useState(false);
   const [roleError, setRoleError] = useState("");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
 
   useEffect(() => {
     const supabase = getBrowserSupabase();
@@ -404,10 +547,14 @@ export default function HomePage() {
       setAuthReady(true);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setClient(supabase);
       setSession(nextSession);
       setAuthReady(true);
+      if (event === "PASSWORD_RECOVERY") {
+        setPasswordRecovery(true);
+        setAuthMessage("");
+      }
       if (!nextSession) {
         setRoles(new Set());
         setRoleError("");
@@ -463,8 +610,20 @@ export default function HomePage() {
     );
   }
 
+  if (passwordRecovery && client) {
+    return (
+      <PasswordRecovery
+        client={client}
+        onComplete={(message) => {
+          setPasswordRecovery(false);
+          setAuthMessage(message);
+        }}
+      />
+    );
+  }
+
   if (!session) {
-    return <Login client={client} configMissing={authReady && !client} />;
+    return <Login client={client} configMissing={authReady && !client} message={authMessage} />;
   }
 
   const isProduction = roles.has("PRINTER_PRODUCTION") && !roles.has("OWNER_ADMIN");
